@@ -29,12 +29,13 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 public class RequestVaultInventory extends GlacierOperation {
 
-  private enum JobResult {
+  private enum JobStatus {
     INPROGRESS,
     SUCCEEDED,
     FAILED,
     NONEXISTANT
   };
+  
   public RequestVaultInventory(Namespace argOpts) {
     super(argOpts);
   }
@@ -72,30 +73,29 @@ public class RequestVaultInventory extends GlacierOperation {
           vaultName, "All");
       
       /*
-       * 3. Check if an inventory request has already been submitted
+       * 3. Check if the status of any pending inventory requests.
        */
-
-      JobResult jobResult = JobResult.NONEXISTANT;
+      JobStatus jobStatus = JobStatus.NONEXISTANT;
       String jobId = null;
       List<GlacierJobDescription> jobList = listJobsResult.getJobList();
       for(GlacierJobDescription job : jobList) {
         if (job.getVaultARN().equals(metadata.getVaultARN()) &&
             job.getAction().equals("InventoryRetrieval") &&
             job.getStatusCode().equals("InProgress")) {
-          jobResult = JobResult.INPROGRESS;
+          jobStatus = JobStatus.INPROGRESS;
           jobId = job.getJobId();
           break;
         }
         else if (job.getVaultARN().equals(metadata.getVaultARN()) &&
             job.getAction().equals("InventoryRetrieval") &&
             job.getStatusCode().equals("Succeeded")) {
-          jobResult = JobResult.SUCCEEDED;
+          jobStatus = JobStatus.SUCCEEDED;
           jobId = job.getJobId();
           break;
         }
       }
       
-      switch(jobResult) {
+      switch(jobStatus) {
         case INPROGRESS: {
           log.info("A job is already in progress to retrieve the inventory of '"+vaultName+"' with "+
               "jobId: "+jobId);
@@ -115,6 +115,7 @@ public class RequestVaultInventory extends GlacierOperation {
           }
           in.close();
           log.debug("Retrieved vault inventory: "+buf.toString());
+          log.info("Retrieved vault inventory: "+buf.toString());
           break;
         }
         case FAILED: 
@@ -128,7 +129,8 @@ public class RequestVaultInventory extends GlacierOperation {
                 );
           InitiateJobResult initJobResult = client.initiateJob(inventoryJobRequest);
           log.debug("requestVaultInventory() response: "+initJobResult.toString());
-          log.info("Created archive retrieval job with id "+initJobResult.getJobId());
+          log.info("Created inventory retrieval job for vault '"+vaultName+"' with jobId "+
+              initJobResult.getJobId());
           break;
         }
       }
@@ -141,7 +143,5 @@ public class RequestVaultInventory extends GlacierOperation {
     } catch(IOException ex) {
       log.error("IOException: "+ex.getMessage());
     }
-    
-    
   }
 }

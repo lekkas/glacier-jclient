@@ -25,10 +25,22 @@ public class DeleteVault extends GlacierOperation {
   
   @Override
   public void exec() {
-    deleteVault(loadCredentials(
-        argOpts.getString("credentials")),
-        getEndpoint(argOpts.getString("endpoint")),
-        argOpts.getString("delete"));
+    try {
+      deleteVault(loadCredentials(
+          argOpts.getString("credentials")),
+          getEndpoint(argOpts.getString("endpoint")),
+          argOpts.getString("delete"));
+      
+      String vaultName = argOpts.getString("delete");
+      log.info("Deleted vault '" + vaultName+"'");
+    } catch(AmazonServiceException ex) {
+      log.error("AmazonServiceException: "+ex.getMessage());
+      System.exit(1);
+    } catch(AmazonClientException ex) {
+      log.error("AmazonClientException: "+ex.getMessage());
+      System.exit(1);
+    }
+    
   }
 
   @Override
@@ -52,18 +64,7 @@ public class DeleteVault extends GlacierOperation {
     AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
     
-    try {
-      DeleteVaultRequest request = new DeleteVaultRequest().withVaultName(vaultName);
-      client.deleteVault(request);
-      log.info("Deleted vault '" + vaultName+"'");
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
-      System.exit(1);
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
-      System.exit(1);
-    }
-    
+    DeleteVaultRequest request = new DeleteVaultRequest().withVaultName(vaultName);
+    client.deleteVault(request);
   }
-  
 }

@@ -26,32 +26,10 @@ public class ListVaults extends GlacierOperation {
   
   @Override
   public void exec() {
-    requestVaultList(loadCredentials(
-      argOpts.getString("credentials")),
-      getEndpoint(argOpts.getString("endpoint")));
-  }
-
-  @Override
-  public boolean valid() {
-    return argOpts.getString("command_name").equals("vault") && 
-          argOpts.getBoolean("list") == true;
-  }
-  
-  /**
-   * This operation requests the list of all vaults owned by the calling user’s account
-   * TODO: Add marker support for lists of over 1000 items.
-   * 
-   * @param credentials
-   * @param endpoint
-   */
-  public static void requestVaultList(AWSCredentials credentials, String endpoint) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-  
     try {
-      ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
-      ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
+      ListVaultsResult listVaultsResult = requestVaultList(
+          loadCredentials(argOpts.getString("credentials")),
+          getEndpoint(argOpts.getString("endpoint")));
       
       log.debug("requestVaultList() response: "+listVaultsResult.toString());
       List<DescribeVaultOutput> vaultList = listVaultsResult.getVaultList();
@@ -68,11 +46,34 @@ public class ListVaults extends GlacierOperation {
       }
       System.out.print(buf.toString());
     } catch(AmazonServiceException ex) {
-    	  log.error("AmazonServiceException: "+ex.getMessage());
-        System.exit(1);
+      log.error("AmazonServiceException: "+ex.getMessage());
+      System.exit(1);
     } catch(AmazonClientException ex) {
-        log.error("AmazonClientException: "+ex.getMessage());
-        System.exit(1);
+      log.error("AmazonClientException: "+ex.getMessage());
+      System.exit(1);
     }
+  }
+
+  @Override
+  public boolean valid() {
+    return argOpts.getString("command_name").equals("vault") && 
+          argOpts.getBoolean("list") == true;
+  }
+  
+  /**
+   * This operation requests the list of all vaults owned by the calling user’s account
+   * TODO: Add marker support for lists of over 1000 items.
+   * 
+   * @param credentials
+   * @param endpoint
+   */
+  public static ListVaultsResult requestVaultList(AWSCredentials credentials, String endpoint) {
+    
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+    client.setEndpoint(endpoint);
+  
+      ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
+      ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
+      return listVaultsResult;
   }
 }

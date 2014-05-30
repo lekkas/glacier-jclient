@@ -22,9 +22,20 @@ public class CreateVault extends GlacierOperation {
   
   @Override
   public void exec() {
-    createVault(loadCredentials(argOpts.getString("credentials")),
-        getEndpoint(argOpts.getString("endpoint")),
-        argOpts.getString("create"));
+    try {
+      CreateVaultResult result = createVault(loadCredentials(argOpts.getString("credentials")),
+          getEndpoint(argOpts.getString("endpoint")),
+          argOpts.getString("create"));
+      
+      log.debug("createVault() response: "+result.toString());
+      log.info("Vault created successfully: " + result.getLocation());
+    } catch(AmazonServiceException ex) {
+      log.error("AmazonServiceException: "+ex.getMessage());
+      System.exit(1);
+    } catch(AmazonClientException ex) {
+      log.error("AmazonClientException: "+ex.getMessage());
+      System.exit(1);
+    }
   }
 
   @Override
@@ -42,22 +53,14 @@ public class CreateVault extends GlacierOperation {
    * @param endpoint
    * @param vaultName
    */
-  public static void createVault(AWSCredentials credentials, String endpoint, String vaultName) {
+  public static CreateVaultResult createVault(AWSCredentials credentials, String endpoint, 
+      String vaultName) {
 
     AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
     
-    try {
-      CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
-      CreateVaultResult result = client.createVault(request);
-      log.debug("createVault() response: "+result.toString());
-      log.info("Vault created successfully: " + result.getLocation());
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
-      System.exit(1);
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
-      System.exit(1);
-    }
+    CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
+    CreateVaultResult result = client.createVault(request);
+    return result;
   }
 }
