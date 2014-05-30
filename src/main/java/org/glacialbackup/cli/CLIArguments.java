@@ -67,6 +67,13 @@ public class CLIArguments {
     "ap-northeast-1"
   };
   
+  public static final String[] Job_List_Options = {
+    "All",
+    "InProgress",
+    "Succeeded",
+    "Failed",
+  };
+  
   public static ArgumentParser createArgsParser() {
 
     ArgumentParser parser = ArgumentParsers.newArgumentParser("GlacierBackup")
@@ -81,10 +88,6 @@ public class CLIArguments {
     Subparser vault = commands.addParser("vault").aliases("v").help("Vault operations");
     MutuallyExclusiveGroup vaultOptions = 
         vault.addMutuallyExclusiveGroup("Vault operation options").required(true);
-    
-    vault.addArgument("-s", "--sync")
-        .help("Query AWS server for vault metadata/inventory and cache the results")
-        .action(Arguments.storeTrue());
     
     vault.addArgument("--credentials")
         .help("Location of AWS credentials")
@@ -140,9 +143,26 @@ public class CLIArguments {
     Subparser jobs = commands.addParser("job").aliases("j").help("Job operations");
     ArgumentGroup jobOptions = jobs.addArgumentGroup("Job operation options");
     
+    
+    jobs.addArgument("--credentials")
+        .help("Location of AWS credentials")
+        .metavar("<file>");
+    
+    jobs.addArgument("-e","--endpoint")
+        .help("Set endpoint "+Arrays.asList(Endpoints).toString())
+        .choices(new CaseInsensitiveStringChoice(Endpoints))
+        .metavar("<region>")
+        .required(true);
+    
+    jobs.addArgument("-v","--vault")
+        .help("Vault name for job operations")
+        .metavar("<name>")
+        .required(true);
+    
     jobOptions.addArgument("-l", "--list")
-        .help("List active jobs")
-        .action(Arguments.storeTrue());
+        .help("List pending jobs for vault")
+        .choices((Job_List_Options))
+        .metavar("<name>");
     
     jobOptions.addArgument("--abort")
         .help("Abort job")

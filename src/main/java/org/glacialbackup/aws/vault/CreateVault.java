@@ -7,6 +7,7 @@ import org.glacialbackup.aws.GlacierOperation;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
@@ -21,8 +22,7 @@ public class CreateVault extends GlacierOperation {
   
   @Override
   public void exec() {
-    createVault(loadCredentials(
-        argOpts.getString("credentials")),
+    createVault(loadCredentials(argOpts.getString("credentials")),
         getEndpoint(argOpts.getString("endpoint")),
         argOpts.getString("create"));
   }
@@ -43,17 +43,20 @@ public class CreateVault extends GlacierOperation {
    * @param vaultName
    */
   public static void createVault(AWSCredentials credentials, String endpoint, String vaultName) {
-    AmazonGlacierClient client;
-    client = new AmazonGlacierClient(credentials);
+
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
     
     try {
       CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
       CreateVaultResult result = client.createVault(request);
-      log.info("createVault(): "+result.toString());
-      print("Vault created successfully: " + result.getLocation());
+      log.debug("createVault() response: "+result.toString());
+      log.info("Vault created successfully: " + result.getLocation());
     } catch(AmazonServiceException ex) {
-      log.error(ex.getMessage());
+      log.error("AmazonServiceException: "+ex.getMessage());
+      System.exit(1);
+    } catch(AmazonClientException ex) {
+      log.error("AmazonClientException: "+ex.getMessage());
       System.exit(1);
     }
   }

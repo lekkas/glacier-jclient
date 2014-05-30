@@ -26,42 +26,49 @@ public class ListVaults extends GlacierOperation {
   
   @Override
   public void exec() {
-    listVaults(loadCredentials(
-        argOpts.getString("credentials")),
-        getEndpoint(argOpts.getString("endpoint")));
+    requestVaultList(loadCredentials(
+      argOpts.getString("credentials")),
+      getEndpoint(argOpts.getString("endpoint")));
   }
 
   @Override
   public boolean valid() {
     return argOpts.getString("command_name").equals("vault") && 
-            argOpts.getBoolean("list") == true;
+          argOpts.getBoolean("list") == true;
   }
   
-  public static void listVaults(AWSCredentials credentials, String endpoint) {
-    log.info("listVaults()");
+  /**
+   * This operation requests the list of all vaults owned by the calling user’s account
+   * TODO: Add marker support for lists of over 1000 items.
+   * 
+   * @param credentials
+   * @param endpoint
+   */
+  public static void requestVaultList(AWSCredentials credentials, String endpoint) {
     
-    AmazonGlacierClient client;
-    client = new AmazonGlacierClient(credentials);
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
-    
+  
     try {
-    	ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
-        ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
-        
-        log.debug("Retrieved vault list: "+listVaultsResult.toString());
-        List<DescribeVaultOutput> vaultList = listVaultsResult.getVaultList();
-        System.out.println("Describing all vaults (vault list):");
-        for (DescribeVaultOutput vault : vaultList) {
-            System.out.println(
-                    "\nCreationDate: " + vault.getCreationDate() +
-                    "\nLastInventoryDate: " + vault.getLastInventoryDate() +
-                    "\nNumberOfArchives: " + vault.getNumberOfArchives() + 
-                    "\nSizeInBytes: " + vault.getSizeInBytes() + 
-                    "\nVaultARN: " + vault.getVaultARN() + 
-                    "\nVaultName: " + vault.getVaultName());
-        }
+      ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
+      ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
+      
+      log.debug("requestVaultList() response: "+listVaultsResult.toString());
+      List<DescribeVaultOutput> vaultList = listVaultsResult.getVaultList();
+      StringBuilder buf = new StringBuilder();
+      buf.append("Describing all vaults (vault list):\n");
+      for (DescribeVaultOutput vault : vaultList) {
+          buf.append("\nCreationDate: " + vault.getCreationDate());
+          buf.append("\nLastInventoryDate: " + vault.getLastInventoryDate());
+          buf.append("\nNumberOfArchives: " + vault.getNumberOfArchives());
+          buf.append("\nSizeInBytes: " + vault.getSizeInBytes());
+          buf.append("\nVaultARN: " + vault.getVaultARN()); 
+          buf.append("\nVaultName: " + vault.getVaultName());
+          buf.append("\n");
+      }
+      System.out.print(buf.toString());
     } catch(AmazonServiceException ex) {
-    	log.error(ex.getMessage());
+    	  log.error("AmazonServiceException: "+ex.getMessage());
         System.exit(1);
     } catch(AmazonClientException ex) {
         log.error("AmazonClientException: "+ex.getMessage());

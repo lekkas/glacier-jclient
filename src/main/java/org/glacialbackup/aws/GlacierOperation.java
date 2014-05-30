@@ -21,6 +21,36 @@ import net.sourceforge.argparse4j.inf.Namespace;
  */
 public abstract class GlacierOperation {
   
+  /*
+   * AmazonServiceException extended Exceptions :
+   * 
+   * AccessDeniedException
+   * ExpiredTokenException
+   * InvalidParameterValueException 
+   * LimitExceededException 
+   * MissingParameterValueException
+   * ResourceNotFoundException
+   * RequestTimeoutException (TODO: Recoverable)
+   * ServiceUnavailableException (TODO: Recoverable)
+   * 
+   * 
+   * Exceptions that are not encapsulated as Java exceptions but are
+   * returned as error code in an AmazonServiceException: 
+   * 
+   * MissingAuthenticationTokenException
+   * 
+   * 
+   * TODO: Check if these exceptions are returned as AmazonServiceEception
+   * error codes: 
+   * 
+   * BadRequest
+   * InvalidSignatureException
+   * SerializationException
+   * ThrottlingException (TODO: Recoverable)
+   * UnrecognizedClientException
+   * 
+   */
+  
   protected final Namespace argOpts;
   private static final String DEFAULT_CREDENTIALS_PATH = 
       System.getProperty("user.home") + "/.aws/aws.properties";

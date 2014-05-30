@@ -9,6 +9,7 @@ import org.glacialbackup.aws.GlacierOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
@@ -25,70 +26,55 @@ public class RequestVaultMetadata extends GlacierOperation {
   
   @Override
   public void exec() {
-    getVaultMetadata(loadCredentials(
-        argOpts.getString("credentials")),
-        getEndpoint(argOpts.getString("endpoint")),
-        argOpts.getString("meta"));
-  }
-  
-  public static void getVaultMetadata(AWSCredentials credentials, String endpoint, 
-      String vaultName) {
-    AmazonGlacierClient client;
-    client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-    
     try {
-      DescribeVaultRequest request = new DescribeVaultRequest().withVaultName(vaultName);
-      DescribeVaultResult result = client.describeVault(request);
-      log.info("Retrieved vault '"+vaultName+"' metadata: "+result.toString());
+      String vaultName = argOpts.getString("meta");
+      DescribeVaultResult result = requestVaultMetadata(
+            loadCredentials(argOpts.getString("credentials")),
+            getEndpoint(argOpts.getString("endpoint")),
+            argOpts.getString("meta"));
       
-      System.out.print(
-          "\nCreationDate: " + result.getCreationDate() +
-          "\nLastInventoryDate: " + result.getLastInventoryDate() +
-          "\nNumberOfArchives: " + result.getNumberOfArchives() + 
-          "\nSizeInBytes: " + result.getSizeInBytes() + 
-          "\nVaultARN: " + result.getVaultARN() + 
-          "\nVaultName: " + result.getVaultName() +
-          "\n");
-      
-      /* TODO: Use JSON objects from result.toString() for the intermediate layer between
-       * AWS responses and underlying DB.  
-       */
-      
-      /*
-       * AmazonServiceException extended Exceptions :
-       * 
-       * AccessDeniedException
-       * ExpiredTokenException
-       * InvalidParameterValueException 
-       * LimitExceededException 
-       * MissingParameterValueException
-       * ResourceNotFoundException
-       * RequestTimeoutException (TODO: Recoverable)
-       * ServiceUnavailableException (TODO: Recoverable)
-       * 
-       * 
-       * Exceptions that are not encapsulated as Java exceptions but are
-       * returned as error code in an AmazonServiceException: 
-       * 
-       * MissingAuthenticationTokenException
-       * 
-       * 
-       * TODO: Check if these exceptions are returned as AmazonServiceEception
-       * error codes: 
-       * 
-       * BadRequest
-       * InvalidSignatureException
-       * SerializationException
-       * ThrottlingException (TODO: Recoverable)
-       * UnrecognizedClientException
-       * 
-       */
+      log.debug("requestVaultMetadata() for '"+vaultName+"': "+result.toString());
+      StringBuilder buf = new StringBuilder();
+      buf.append("\nCreationDate: " + result.getCreationDate());
+      buf.append("\nLastInventoryDate: " + result.getLastInventoryDate());
+      buf.append("\nNumberOfArchives: " + result.getNumberOfArchives());
+      buf.append("\nSizeInBytes: " + result.getSizeInBytes());
+      buf.append("\nVaultARN: " + result.getVaultARN()); 
+      buf.append("\nVaultName: " + result.getVaultName());
+      buf.append("\n");
+      System.out.print(buf.toString());
     } catch(AmazonServiceException ex) {
-      log.error(ex.getMessage());
+      log.error("AmazonServiceException: "+ex.getMessage());
+      System.exit(1);
+    } catch(AmazonClientException ex) {
+      log.error("AmazonClientException: "+ex.getMessage());
       System.exit(1);
     }
+  } 
+  
+  /**
+   * This operation returns information about a vault, including the vault Amazon Resource Name 
+   * (ARN), the date the vault was created, the number of archives contained within the vault, and 
+   * the total size of all the archives in the vault. The number of archives and their total size 
+   * are as of the last vault inventory Amazon Glacier generated (see Working with Vaults in Amazon 
+   * Glacier). Amazon Glacier generates vault inventories approximately daily. This means that if 
+   * you add or remove an archive from a vault, and then immediately send a Describe Vault request, 
+   * the response might not reflect the changes.
+   * 
+   * @param credentials
+   * @param endpoint
+   * @param vaultName
+   */
+  public static DescribeVaultResult requestVaultMetadata(AWSCredentials credentials, 
+      String endpoint, String vaultName) {
+
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+    client.setEndpoint(endpoint);
     
+    DescribeVaultRequest request = new DescribeVaultRequest().withVaultName(vaultName);
+    DescribeVaultResult result = client.describeVault(request);
+    
+    return result;
   }
 
   @Override
