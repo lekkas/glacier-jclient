@@ -3,6 +3,8 @@
  */
 package org.glacialbackup;
 
+import java.io.IOException;
+
 import org.glacialbackup.cli.CLIArguments;
 import org.glacialbackup.cli.CLICommands;
 import org.slf4j.Logger;
@@ -16,9 +18,7 @@ public class GlacialBackup {
 
   public static Logger log = LoggerFactory.getLogger(GlacialBackup.class);
   
-  public static void main(String[] args) {
-
-    log.info("test");
+  public static void main(String[] args) throws IOException, InterruptedException {
     ArgumentParser parser = CLIArguments.createArgsParser();
     Namespace ns;
     try {
@@ -30,5 +30,4 @@ public class GlacialBackup {
       System.exit(1);
     }
   }
-
 }

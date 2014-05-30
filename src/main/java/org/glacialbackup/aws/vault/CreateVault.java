@@ -51,7 +51,7 @@ public class CreateVault extends GlacierOperation {
       CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
       CreateVaultResult result = client.createVault(request);
       log.info("createVault(): "+result.toString());
-      System.out.println("Vault created successfully: " + result.getLocation());
+      print("Vault created successfully: " + result.getLocation());
     } catch(AmazonServiceException ex) {
       log.error(ex.getMessage());
       System.exit(1);

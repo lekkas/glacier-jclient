@@ -8,6 +8,7 @@ import java.util.List;
 import org.glacialbackup.aws.GlacierOperation;
 
 import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DescribeVaultOutput;
@@ -57,10 +58,13 @@ public class ListVaults extends GlacierOperation {
                     "\nNumberOfArchives: " + vault.getNumberOfArchives() + 
                     "\nSizeInBytes: " + vault.getSizeInBytes() + 
                     "\nVaultARN: " + vault.getVaultARN() + 
-                    "\nVaultName: " + vault.getVaultName()); 
+                    "\nVaultName: " + vault.getVaultName());
         }
     } catch(AmazonServiceException ex) {
     	log.error(ex.getMessage());
+        System.exit(1);
+    } catch(AmazonClientException ex) {
+        log.error("AmazonClientException: "+ex.getMessage());
         System.exit(1);
     }
   }

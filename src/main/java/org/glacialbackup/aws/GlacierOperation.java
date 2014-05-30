@@ -67,6 +67,20 @@ public abstract class GlacierOperation {
     return "https://glacier."+region.toLowerCase()+".amazonaws.com";
   }
   
+  public static void print(String msg) {
+      System.out.print(msg);
+  }
+  
+  public static void animate() throws InterruptedException {
+      String anim= "|/-\\";
+      for (int x =0 ; x < 100 ; x++){
+              String data = "\r" + anim.charAt(x % anim.length())  + " " + x ;
+              GlacierOperation.print(data);
+              Thread.sleep(100);
+      }
+      
+  }
+  
   public abstract void exec();
   public abstract boolean valid();
 }
