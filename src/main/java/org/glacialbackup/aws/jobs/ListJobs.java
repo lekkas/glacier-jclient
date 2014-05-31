@@ -19,7 +19,6 @@ import com.amazonaws.services.glacier.model.ListJobsResult;
 
 public class ListJobs extends GlacierOperation {
 
-
   public ListJobs(Namespace argOpts) {
     super(argOpts);
   }
@@ -73,8 +72,6 @@ public class ListJobs extends GlacierOperation {
       log.error("AmazonClientException: "+ex.getMessage());
       System.exit(1);
     }
-    
-    
   }
 
   @Override

@@ -19,10 +19,43 @@ import net.sourceforge.argparse4j.inf.Subparsers;
  
 public class CLIArguments {
   
-  private static class CaseInsensitiveStringChoice implements ArgumentChoice {
-    
+  private static class CaseSensitiveStringChoice implements ArgumentChoice {
     private Collection<String> values_;
     
+    public CaseSensitiveStringChoice(String... values) {
+      values_ = new ArrayList<String>();
+      for(String s : values) {
+        values_.add(s);
+      }
+    }
+    
+    @Override
+    public boolean contains(Object val) {
+      if (values_.isEmpty()) {
+        // If values is empty, we don't have type information, so
+        // just return false.
+        return false;
+      }
+      String first = values_.iterator().next();
+      if (first.getClass().equals(val.getClass())) {
+          return values_.contains(val.toString());
+      } else {
+          throw new IllegalArgumentException(String.format(
+                  "type mismatch (Make sure that you specified correct Argument.type()):"
+                          + " expected: %s actual: %s",
+                  first.getClass().getName(), val.getClass().getName()
+          ));
+      }
+    }
+
+    @Override
+    public String textualFormat() {
+      return TextHelper.concat(values_, 0, ",", "[", "]");
+    }
+  }
+  
+  private static class CaseInsensitiveStringChoice implements ArgumentChoice {
+    private Collection<String> values_;
     public CaseInsensitiveStringChoice(String... values) {
       values_ = new ArrayList<String>();
       for(String s : values) {
@@ -143,11 +176,6 @@ public class CLIArguments {
     Subparser jobs = commands.addParser("job").aliases("j").help("Job operations");
     ArgumentGroup jobOptions = jobs.addArgumentGroup("Job operation options");
     
-    
-    jobs.addArgument("--credentials")
-        .help("Location of AWS credentials")
-        .metavar("<file>");
-    
     jobs.addArgument("-e","--endpoint")
         .help("Set endpoint "+Arrays.asList(Endpoints).toString())
         .choices(new CaseInsensitiveStringChoice(Endpoints))
@@ -158,11 +186,15 @@ public class CLIArguments {
         .help("Vault name for job operations")
         .metavar("<name>")
         .required(true);
+
+    jobs.addArgument("--credentials")
+        .help("Location of AWS credentials")
+        .metavar("<file>");
     
     jobOptions.addArgument("-l", "--list")
-        .help("List pending jobs for vault")
-        .choices((Job_List_Options))
-        .metavar("<name>");
+        .help("List jobs "+Arrays.asList(Job_List_Options).toString())
+        .choices(new CaseSensitiveStringChoice(Job_List_Options))
+        .metavar("<selection>");
     
     jobOptions.addArgument("--abort")
         .help("Abort job")
