@@ -28,6 +28,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
  * TODO: Print the information in a pretty way for the user
+ * TODO: Inform user of ETA from the creationDate field of the oldest submitted job
  */
 public class RequestVaultInventory extends GlacierOperation {
 
@@ -120,7 +121,7 @@ public class RequestVaultInventory extends GlacierOperation {
         log.info("Retrieving inventory for job: "+succeededJob.toString());
         GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
             vaultName, succeededJob.getJobId(), null);
-        String jsonInventory = GetJobOutput.getInventoryFromJobResult(jobOutputResult);
+        String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
         
         log.info("Retrieved vault inventory: "+jsonInventory);
         
@@ -132,7 +133,7 @@ public class RequestVaultInventory extends GlacierOperation {
           GetJobOutputResult oldJobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
               vaultName, oldSucceededJob.getJobId(), null);
           
-          String oldJsonInventory = GetJobOutput.getInventoryFromJobResult(oldJobOutputResult);
+          String oldJsonInventory = GetJobOutput.getJSONInventoryFromJobResult(oldJobOutputResult);
           log.debug("Retrieved old job vault inventory: "+oldJsonInventory);
         }
       } 

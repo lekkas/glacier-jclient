@@ -126,6 +126,11 @@ public class CLIArguments {
         .help("Location of AWS credentials")
         .metavar("<file>");
     
+    vault.addArgument("-w", "--wait")
+        .help("Wait until inventory retrieval operation has been completed (can take ~4 hrs if " +
+        		"no jobs have already been submitted)")
+        .action(Arguments.storeTrue());
+
     vault.addArgument("-e","--endpoint")
         .help("Set endpoint "+Arrays.asList(Endpoints).toString())
         .choices(new CaseInsensitiveStringChoice(Endpoints))
@@ -137,11 +142,11 @@ public class CLIArguments {
         .action(Arguments.storeTrue());
     
     vaultOptions.addArgument("-i", "--inventory")
-        .help("Vault inventory")
+        .help("Retrieve vault inventory")
         .metavar("<name>");
     
     vaultOptions.addArgument("-m", "--meta")
-        .help("Vault metadata")
+        .help("Retrieve vault metadata")
         .metavar("<name>");
     
     vaultOptions.addArgument("--delete")

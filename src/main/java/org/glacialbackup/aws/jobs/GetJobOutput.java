@@ -57,7 +57,7 @@ public class GetJobOutput extends GlacierOperation {
     return jobOutputResult;
   }
   
-  public static String getInventoryFromJobResult(GetJobOutputResult jobOutputResult) 
+  public static String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult) 
       throws IOException {
     
     BufferedReader in = new BufferedReader(new InputStreamReader(jobOutputResult.getBody()));
