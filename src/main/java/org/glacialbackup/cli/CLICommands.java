@@ -9,6 +9,7 @@ import java.util.List;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.archive.UploadArchive;
 import org.glacialbackup.aws.jobs.ListJobs;
 import org.glacialbackup.aws.vault.CreateVault;
 import org.glacialbackup.aws.vault.DeleteVault;
@@ -20,12 +21,16 @@ public class CLICommands {
 
   public static void findAndExec(Namespace argOpts) {
       List<GlacierOperation> operations = new ArrayList<GlacierOperation>();
+      
       /* Vault Operations */
       operations.add(new CreateVault(argOpts));
       operations.add(new DeleteVault(argOpts));
       operations.add(new RequestVaultInventory(argOpts));
       operations.add(new RequestVaultMetadata(argOpts));
       operations.add(new ListVaults(argOpts));
+      
+      /* Archive Operations */
+      operations.add(new UploadArchive(argOpts));
       
       /* Job Operations */
       operations.add(new ListJobs(argOpts));

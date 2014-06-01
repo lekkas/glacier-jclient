@@ -86,6 +86,18 @@ public class RequestVaultInventory extends GlacierOperation {
         }
       }
       
+      /*
+       * Create a new job if there are neither in progress nor completed jobs.
+       */
+      if(inProgressJobs.size() == 0 && succeededJobs.size() == 0) {
+        InitiateJobResult initJobResult = InitiateJob.initiateJob(credentials, endpoint, 
+              vaultName, InitJobType.INVENTORY_RETRIEVAL);
+        
+        log.info("Created "+InitJobType.INVENTORY_RETRIEVAL+" job for vault '"+vaultName+"' " +
+            "with jobId "+initJobResult.getJobId());
+        log.debug("requestVaultInventory() response: "+initJobResult.toString());
+      }
+      
       if(inProgressJobs.size() > 0) {
         int count = inProgressJobs.size();
         log.info("There "+(count==1?"is":"are")+" already "+count+" inventory retrieval job"
@@ -118,7 +130,7 @@ public class RequestVaultInventory extends GlacierOperation {
         sortJobListByCompletionDateDesc(succeededJobs);
         
         GlacierJobDescription succeededJob = succeededJobs.remove(0);
-        log.info("Retrieving inventory for job: "+succeededJob.toString());
+        log.info("Retrieving inventory for completed job: "+succeededJob.toString());
         GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
             vaultName, succeededJob.getJobId(), null);
         String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
@@ -134,22 +146,9 @@ public class RequestVaultInventory extends GlacierOperation {
               vaultName, oldSucceededJob.getJobId(), null);
           
           String oldJsonInventory = GetJobOutput.getJSONInventoryFromJobResult(oldJobOutputResult);
-          log.debug("Retrieved old job vault inventory: "+oldJsonInventory);
+          log.debug("Retrieved vault inventory from older job: "+oldJsonInventory);
         }
       } 
-      
-      /*
-       * Create a new job if there are neither in progress nor completed jobs.
-       */
-      if(inProgressJobs.size() == 0 && succeededJobs.size() == 0) {
-        InitiateJobResult initJobResult = InitiateJob.initiateJob(credentials, endpoint, 
-              vaultName, InitJobType.INVENTORY_RETRIEVAL);
-        
-        log.info("Created "+InitJobType.INVENTORY_RETRIEVAL+" job for vault '"+vaultName+"' " +
-            "with jobId "+initJobResult.getJobId());
-        log.debug("requestVaultInventory() response: "+initJobResult.toString());
-      }
-
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);
