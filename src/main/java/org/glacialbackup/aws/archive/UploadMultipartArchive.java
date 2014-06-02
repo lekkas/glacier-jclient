@@ -5,6 +5,9 @@ package org.glacialbackup.aws.archive;
 
 import org.glacialbackup.aws.GlacierOperation;
 
+import com.amazonaws.auth.AWSCredentials;
+import com.amazonaws.services.glacier.AmazonGlacierClient;
+
 import net.sourceforge.argparse4j.inf.Namespace;
 
 
@@ -20,10 +23,36 @@ public class UploadMultipartArchive extends GlacierOperation {
     System.out.println("Executing "+this.getClass().getName());
     
   }
-
+  
   @Override
   public boolean valid() {
     return false;
   }
+  
+  
+  public static void uploadArchive(AWSCredentials credentials, String endpoint, 
+      String vaultName, String archiveFilePath) {
+    
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+    client.setEndpoint(endpoint);
+
+  }
+  
+  public static void initiateMultipartUpload() {
+    
+  }
+  
+  public static void uploadPart() {
+    
+  }
+  
+  public static void completeMultipartUpload() {
+    
+  }
+  
+  public static void resumeMultipartUpload(AmazonGlacierClient client) {
+    
+  }
+  
 
 }

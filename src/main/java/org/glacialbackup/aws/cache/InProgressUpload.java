@@ -5,12 +5,9 @@ package org.glacialbackup.aws.cache;
 
 public class InProgressUpload {
 
+  private String archiveFilePath;
+  private String vault;
   private String multipartUploadId;
-  private String x_amz_content_sha256;
-  private String x_amz_sha256_tree_hash;
-  private String x_amz_archive_description;
-  private String x_amz_part_size;
-  private String content_length;
   
   public InProgressUpload() {
     
@@ -31,74 +28,30 @@ public class InProgressUpload {
   }
 
   /**
-   * @return the x_amz_content_sha256
+   * @return the vault
    */
-  public String getX_amz_content_sha256() {
-    return x_amz_content_sha256;
+  public String getVault() {
+    return vault;
   }
 
   /**
-   * @param x_amz_content_sha256 the x_amz_content_sha256 to set
+   * @param vault the vault to set
    */
-  public void setX_amz_content_sha256(String x_amz_content_sha256) {
-    this.x_amz_content_sha256 = x_amz_content_sha256;
+  public void setVault(String vault) {
+    this.vault = vault;
   }
 
   /**
-   * @return the x_amz_sha256_tree_hash
+   * @return the archiveFilePath
    */
-  public String getX_amz_sha256_tree_hash() {
-    return x_amz_sha256_tree_hash;
+  public String getArchiveFilePath() {
+    return archiveFilePath;
   }
 
   /**
-   * @param x_amz_sha256_tree_hash the x_amz_sha256_tree_hash to set
+   * @param archiveFilePath the archiveFilePath to set
    */
-  public void setX_amz_sha256_tree_hash(String x_amz_sha256_tree_hash) {
-    this.x_amz_sha256_tree_hash = x_amz_sha256_tree_hash;
+  public void setArchiveFilePath(String archiveFilePath) {
+    this.archiveFilePath = archiveFilePath;
   }
-
-  /**
-   * @return the x_amz_archive_description
-   */
-  public String getX_amz_archive_description() {
-    return x_amz_archive_description;
-  }
-
-  /**
-   * @param x_amz_archive_description the x_amz_archive_description to set
-   */
-  public void setX_amz_archive_description(String x_amz_archive_description) {
-    this.x_amz_archive_description = x_amz_archive_description;
-  }
-
-  /**
-   * @return the x_amz_part_size
-   */
-  public String getX_amz_part_size() {
-    return x_amz_part_size;
-  }
-
-  /**
-   * @param x_amz_part_size the x_amz_part_size to set
-   */
-  public void setX_amz_part_size(String x_amz_part_size) {
-    this.x_amz_part_size = x_amz_part_size;
-  }
-
-  /**
-   * @return the content_length
-   */
-  public String getContent_length() {
-    return content_length;
-  }
-
-  /**
-   * @param content_length the content_length to set
-   */
-  public void setContent_length(String content_length) {
-    this.content_length = content_length;
-  }
-  
-  
 }

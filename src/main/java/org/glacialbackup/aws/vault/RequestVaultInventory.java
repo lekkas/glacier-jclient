@@ -27,6 +27,9 @@ import com.amazonaws.services.glacier.model.GetJobOutputResult;
 import com.amazonaws.services.glacier.model.GlacierJobDescription;
 import com.amazonaws.services.glacier.model.InitiateJobResult;
 import com.amazonaws.services.glacier.model.ListJobsResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParser;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
@@ -144,16 +147,22 @@ public class RequestVaultInventory extends GlacierOperation {
         sortJobListByCompletionDateDesc(succeededJobs);
         
         GlacierJobDescription succeededJob = succeededJobs.remove(0);
-        log.info("Retrieving inventory for completed job: "+succeededJob.toString());
+        log.debug("Retrieving inventory for completed job: "+succeededJob.toString());
         GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
             vaultName, succeededJob.getJobId(), null);
         
         String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
         log.debug("Retrieved vault inventory: "+jsonInventory);
         
+        Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        JsonParser jp = new JsonParser();
+        String prettyJson = gson.toJson(jp.parse(jsonInventory));
+        System.out.println("--- INVENTORY ---");
+        System.out.println(prettyJson);
+        
         LocalCache.loadCache().addInventory(jsonInventory);
-        System.out.println(jsonInventory);
-
+        
+        
         /*
          * Log older succeeded jobs
          */

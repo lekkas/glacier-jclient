@@ -5,11 +5,11 @@ package org.glacialbackup.aws.cache;
 
 public class ArchiveInfo {
   
-  private String archiveId;
-  private String archiveDescription; // not required when uploading an archive
-  private String creationDate;
-  private String size;
-  private String sha256TreeHash;
+  private String ArchiveId;
+  private String ArchiveDescription; // not required when uploading an archive
+  private String CreationDate;
+  private String Size;
+  private String SHA256TreeHash;
   
   public ArchiveInfo() {
     
@@ -19,70 +19,70 @@ public class ArchiveInfo {
    * @return the archiveId
    */
   public String getArchiveId() {
-    return archiveId;
+    return ArchiveId;
   }
 
   /**
    * @param archiveId the archiveId to set
    */
   public void setArchiveId(String archiveId) {
-    this.archiveId = archiveId;
+    ArchiveId = archiveId;
   }
 
   /**
    * @return the archiveDescription
    */
   public String getArchiveDescription() {
-    return archiveDescription;
+    return ArchiveDescription;
   }
 
   /**
    * @param archiveDescription the archiveDescription to set
    */
   public void setArchiveDescription(String archiveDescription) {
-    this.archiveDescription = archiveDescription;
+    ArchiveDescription = archiveDescription;
   }
 
   /**
    * @return the creationDate
    */
   public String getCreationDate() {
-    return creationDate;
+    return CreationDate;
   }
 
   /**
    * @param creationDate the creationDate to set
    */
   public void setCreationDate(String creationDate) {
-    this.creationDate = creationDate;
+    CreationDate = creationDate;
   }
 
   /**
    * @return the size
    */
   public String getSize() {
-    return size;
+    return Size;
   }
 
   /**
    * @param size the size to set
    */
   public void setSize(String size) {
-    this.size = size;
+    Size = size;
   }
 
   /**
-   * @return the sha256TreeHash
+   * @return the sHA256TreeHash
    */
-  public String getSha256TreeHash() {
-    return sha256TreeHash;
+  public String getSHA256TreeHash() {
+    return SHA256TreeHash;
   }
 
   /**
-   * @param sha256TreeHash the sha256TreeHash to set
+   * @param sHA256TreeHash the sHA256TreeHash to set
    */
-  public void setSha256TreeHash(String sha256TreeHash) {
-    this.sha256TreeHash = sha256TreeHash;
+  public void setSHA256TreeHash(String sHA256TreeHash) {
+    SHA256TreeHash = sHA256TreeHash;
   }
   
 }
