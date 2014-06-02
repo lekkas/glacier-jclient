@@ -3,17 +3,17 @@
  */
 package org.glacialbackup.aws.vault;
 
-import java.util.List;
-
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.cache.LocalCache;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
-import com.amazonaws.services.glacier.model.DescribeVaultOutput;
 import com.amazonaws.services.glacier.model.ListVaultsRequest;
 import com.amazonaws.services.glacier.model.ListVaultsResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
@@ -32,19 +32,11 @@ public class ListVaults extends GlacierOperation {
           getEndpoint(argOpts.getString("endpoint")));
       
       log.debug("requestVaultList() response: "+listVaultsResult.toString());
-      List<DescribeVaultOutput> vaultList = listVaultsResult.getVaultList();
-      StringBuilder buf = new StringBuilder();
-      buf.append("Describing all vaults (vault list):\n");
-      for (DescribeVaultOutput vault : vaultList) {
-          buf.append("\nCreationDate: " + vault.getCreationDate());
-          buf.append("\nLastInventoryDate: " + vault.getLastInventoryDate());
-          buf.append("\nNumberOfArchives: " + vault.getNumberOfArchives());
-          buf.append("\nSizeInBytes: " + vault.getSizeInBytes());
-          buf.append("\nVaultARN: " + vault.getVaultARN()); 
-          buf.append("\nVaultName: " + vault.getVaultName());
-          buf.append("\n");
-      }
-      System.out.print(buf.toString());
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      String json = gson.toJson(listVaultsResult.getVaultList());
+      LocalCache.loadCache().addVaultInfoList(json);
+      
+      System.out.println(json);
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);

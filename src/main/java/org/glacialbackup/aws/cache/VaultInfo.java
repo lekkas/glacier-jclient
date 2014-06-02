@@ -3,8 +3,6 @@
  */
 package org.glacialbackup.aws.cache;
 
-import java.util.List;
-
 /*
  * We needed a local cache to support resume for archive uploads. So, why not doing a little
  * extra work and support local caching of vault inventories ?
@@ -18,7 +16,7 @@ public class VaultInfo {
   private String vaultARN;
   private String vaultName;
   
-  private List<ArchiveInfo> inventory;
+  private VaultInventory vaultInventory = new VaultInventory();
   
   public VaultInfo() {
     
@@ -109,17 +107,17 @@ public class VaultInfo {
   }
 
   /**
-   * @return the archiveList
+   * @return the vaultInventory
    */
-  public List<ArchiveInfo> getInventory() {
-    return inventory;
+  public VaultInventory getVaultInventory() {
+    return vaultInventory;
   }
 
   /**
-   * @param archiveList the archiveList to set
+   * @param vaultInventory the vaultInventory to set
    */
-  public void setInventory(List<ArchiveInfo> archiveList) {
-    this.inventory = archiveList;
+  public void setVaultInventory(VaultInventory vaultInventory) {
+    this.vaultInventory = vaultInventory;
   }
   
 }

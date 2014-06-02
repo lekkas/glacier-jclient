@@ -36,10 +36,11 @@ public class RequestVaultMetadata extends GlacierOperation {
             getEndpoint(argOpts.getString("endpoint")),
             argOpts.getString("meta"));
       
-      log.debug("requestVaultMetadata() for '"+vaultName+"': "+result.toString());
+      log.debug("Vault metadata for '"+vaultName+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
       String json = gson.toJson(result);
       LocalCache.loadCache().addVaultInfo(json);
+      
       System.out.println(json);
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());

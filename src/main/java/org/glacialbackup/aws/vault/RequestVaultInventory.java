@@ -10,10 +10,14 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.cache.LocalCache;
 import org.glacialbackup.aws.jobs.GetJobOutput;
 import org.glacialbackup.aws.jobs.InitiateJob;
 import org.glacialbackup.aws.jobs.InitiateJob.InitJobType;
 import org.glacialbackup.aws.jobs.ListJobs;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Interval;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -57,14 +61,11 @@ public class RequestVaultInventory extends GlacierOperation {
     
     try {
       /* 
-       * 1. Request list of jobs for the specific vault 
+       * Request list of all inventory request jobs for the specific vault 
        */
       ListJobsResult listJobsResult = ListJobs.listJobs(credentials, endpoint, 
           vaultName, "All");
-      
-      /*
-       * 2. Check if the status of any pending inventory requests.
-       */
+
       List<GlacierJobDescription> jobList = listJobsResult.getJobList();
       List<GlacierJobDescription> succeededJobs = new ArrayList<GlacierJobDescription>();
       List<GlacierJobDescription> inProgressJobs = new ArrayList<GlacierJobDescription>();
@@ -88,6 +89,7 @@ public class RequestVaultInventory extends GlacierOperation {
       
       /*
        * Create a new job if there are neither in progress nor completed jobs.
+       * TODO: Override this with a --force flag
        */
       if(inProgressJobs.size() == 0 && succeededJobs.size() == 0) {
         InitiateJobResult initJobResult = InitiateJob.initiateJob(credentials, endpoint, 
@@ -98,45 +100,60 @@ public class RequestVaultInventory extends GlacierOperation {
         log.debug("requestVaultInventory() response: "+initJobResult.toString());
       }
       
+      /*
+       * Log information regarding in-progress jobs
+       */
       if(inProgressJobs.size() > 0) {
-        int count = inProgressJobs.size();
-        log.info("There "+(count==1?"is":"are")+" already "+count+" inventory retrieval job"
-        +(count==1?"":"s")+" in progress for vault '"+vaultName+"'");
+        sortJobListByCreationDateAsc(inProgressJobs);
         
+        String jobCreationDate = inProgressJobs.get(0).getCreationDate(); // oldest job
+        DateTimeZone zone = DateTimeZone.UTC;
+        DateTime start = new DateTime(jobCreationDate, zone);
+        DateTime end = new DateTime(zone);
+        Interval interval = new Interval(start, end);
+        long hours = interval.toDuration().getStandardHours();
+        long minutes = interval.toDuration().getStandardMinutes() % 60;
+
+        log.info("There are already "+inProgressJobs.size()+" inventory retrieval job(s)"+
+            " in progress for vault '"+vaultName+"'. Most recent job was submitted "+hours+
+            " hour(s), "+minutes+" minute(s) ago.");
+
+        /*
+         * Log all in-progress jobs
+         */
         for(GlacierJobDescription job: inProgressJobs) {
           log.debug("In-Progress inventory retrieval job for vault '"+vaultName+"': "+
               job.toString());
         }
       }
-      
+
       /*
-       * TODO: Do we need this information printed to the user? 
+       * Log failed jobs
        */
       if(failedJobs.size() > 0) {
-        int count = failedJobs.size();
-        log.info(count+" inventory retrieval job"+(count==1?"":"s")+" failed for vault " +
-        		"'"+vaultName+"'. Please check the logfile for more details.");
-        
         for(GlacierJobDescription job: failedJobs) {
           log.debug("Failed inventory retrieval job for vault '"+vaultName+"': "+
               job.toString());
         }
       }
       
+      /*
+       * Get most recent job (if any), cache it and present it to the user.
+       */
       if(succeededJobs.size() > 0) {
-        /*
-         * Get most recent job and present it to the user
-         */
         sortJobListByCompletionDateDesc(succeededJobs);
         
         GlacierJobDescription succeededJob = succeededJobs.remove(0);
         log.info("Retrieving inventory for completed job: "+succeededJob.toString());
         GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
             vaultName, succeededJob.getJobId(), null);
+        
         String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
+        log.debug("Retrieved vault inventory: "+jsonInventory);
         
-        log.info("Retrieved vault inventory: "+jsonInventory);
-        
+        LocalCache.loadCache().addInventory(jsonInventory);
+        System.out.println(jsonInventory);
+
         /*
          * Log older succeeded jobs
          */
@@ -174,4 +191,14 @@ public class RequestVaultInventory extends GlacierOperation {
       });
       Collections.reverse(list);
   }
+  
+  private static void sortJobListByCreationDateAsc(List<GlacierJobDescription> list) {
+    Collections.sort(list, new Comparator<GlacierJobDescription>() {
+
+      @Override
+      public int compare(GlacierJobDescription o1, GlacierJobDescription o2) {
+        return o1.getCreationDate().compareTo(o2.getCreationDate());
+      }
+    });
+}
 }

@@ -4,6 +4,7 @@
 package org.glacialbackup.aws.vault;
 
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.cache.LocalCache;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
@@ -13,6 +14,9 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.CreateVaultRequest;
 import com.amazonaws.services.glacier.model.CreateVaultResult;
+import com.amazonaws.services.glacier.model.DescribeVaultResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class CreateVault extends GlacierOperation {
 
@@ -27,8 +31,22 @@ public class CreateVault extends GlacierOperation {
           getEndpoint(argOpts.getString("endpoint")),
           argOpts.getString("create"));
       
-      log.debug("createVault() response: "+result.toString());
+      log.debug("Create vault operation response: "+result.toString());
       log.info("Vault created successfully: " + result.getLocation());
+      
+      /*
+       * Request metadata and add it to the cache
+       */
+      DescribeVaultResult metaResult = RequestVaultMetadata.requestVaultMetadata(
+          loadCredentials(argOpts.getString("credentials")),
+          getEndpoint(argOpts.getString("endpoint")),
+          argOpts.getString("create"));
+    
+      log.debug("Vault metadata for '"+argOpts.getString("create")+"': "+result.toString());
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      String json = gson.toJson(metaResult);
+      LocalCache.loadCache().addVaultInfo(json);
+      
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);

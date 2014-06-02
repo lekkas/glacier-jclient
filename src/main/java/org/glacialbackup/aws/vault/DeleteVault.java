@@ -6,6 +6,7 @@ package org.glacialbackup.aws.vault;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.cache.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,12 @@ public class DeleteVault extends GlacierOperation {
       
       String vaultName = argOpts.getString("delete");
       log.info("Deleted vault '" + vaultName+"'");
+      
+      /*
+       * Remove vault from cache
+       */
+      LocalCache.loadCache().deleteVaultInfo(vaultName);
+      
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);
