@@ -31,10 +31,12 @@ public class RequestVaultMetadata extends GlacierOperation {
   public void exec() {
     try {
       String vaultName = argOpts.getString("meta");
-      DescribeVaultResult result = requestVaultMetadata(
-            loadCredentials(argOpts.getString("credentials")),
-            getEndpoint(argOpts.getString("endpoint")),
-            argOpts.getString("meta"));
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+      client.setEndpoint(endpoint);
+
+      DescribeVaultResult result = requestVaultMetadata(client, vaultName);
       
       log.debug("Vault metadata for '"+vaultName+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -64,11 +66,8 @@ public class RequestVaultMetadata extends GlacierOperation {
    * @param endpoint
    * @param vaultName
    */
-  public static DescribeVaultResult requestVaultMetadata(AWSCredentials credentials, 
-      String endpoint, String vaultName) {
-
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
+  public static DescribeVaultResult requestVaultMetadata(AmazonGlacierClient client, 
+      String vaultName) {
 
     DescribeVaultRequest request = new DescribeVaultRequest().withVaultName(vaultName);
     DescribeVaultResult result = client.describeVault(request);

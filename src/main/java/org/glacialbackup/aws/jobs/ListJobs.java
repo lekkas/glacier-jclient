@@ -27,13 +27,14 @@ public class ListJobs extends GlacierOperation {
   public void exec() {
     
     try {
-      String listOption = argOpts.getString("list");
       String vaultName = argOpts.getString("vault");
-      
-      ListJobsResult listJobsResult = listJobs(loadCredentials(argOpts.getString("credentials")),
-          getEndpoint(argOpts.getString("endpoint")),
-          argOpts.getString("vault"),
-          argOpts.getString("list"));
+      String listOption = argOpts.getString("list");
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+      client.setEndpoint(endpoint);
+
+      ListJobsResult listJobsResult = listJobs(client, vaultName, listOption);
       
       log.debug("listJobs() response for '"+vaultName+"' ("+listOption+"): "+
           listJobsResult.toString());
@@ -106,11 +107,8 @@ public class ListJobs extends GlacierOperation {
    * @param endpoint
    * @param vaultName
    */
-  public static ListJobsResult listJobs(AWSCredentials credentials, String endpoint, String vaultName,
+  public static ListJobsResult listJobs(AmazonGlacierClient client, String vaultName,
       String listOption) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
 
     String statuscode = listOption.equals("All")?null:listOption;
     ListJobsRequest listJobsRequest = new ListJobsRequest()

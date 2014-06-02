@@ -27,9 +27,13 @@ public class CreateVault extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      CreateVaultResult result = createVault(loadCredentials(argOpts.getString("credentials")),
-          getEndpoint(argOpts.getString("endpoint")),
-          argOpts.getString("create"));
+      String vaultName = argOpts.getString("create");
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+      client.setEndpoint(endpoint);
+
+      CreateVaultResult result = createVault(client, vaultName);
       
       log.debug("Create vault operation response: "+result.toString());
       log.info("Vault created successfully: " + result.getLocation());
@@ -37,10 +41,7 @@ public class CreateVault extends GlacierOperation {
       /*
        * Request metadata and add it to the cache
        */
-      DescribeVaultResult metaResult = RequestVaultMetadata.requestVaultMetadata(
-          loadCredentials(argOpts.getString("credentials")),
-          getEndpoint(argOpts.getString("endpoint")),
-          argOpts.getString("create"));
+      DescribeVaultResult metaResult = RequestVaultMetadata.requestVaultMetadata(client, vaultName);
     
       log.debug("Vault metadata for '"+argOpts.getString("create")+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -71,12 +72,7 @@ public class CreateVault extends GlacierOperation {
    * @param endpoint
    * @param vaultName
    */
-  public static CreateVaultResult createVault(AWSCredentials credentials, String endpoint, 
-      String vaultName) {
-
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-    
+  public static CreateVaultResult createVault(AmazonGlacierClient client, String vaultName) {
     CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
     CreateVaultResult result = client.createVault(request);
     return result;

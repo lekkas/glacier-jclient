@@ -45,9 +45,13 @@ public class RequestVaultInventory extends GlacierOperation {
   
   @Override
   public void exec() {
-    requestVaultInventory(loadCredentials(argOpts.getString("credentials")),
-        getEndpoint(argOpts.getString("endpoint")),
-        argOpts.getString("inventory"));
+    String vaultName = argOpts.getString("inventory");
+    AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+    String endpoint = getEndpoint(argOpts.getString("endpoint"));
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+    client.setEndpoint(endpoint);
+    
+    requestVaultInventory(client, vaultName);
   }
 
   @Override
@@ -56,18 +60,13 @@ public class RequestVaultInventory extends GlacierOperation {
             argOpts.getString("inventory") != null;
   }
 
-  public static void requestVaultInventory(AWSCredentials credentials, String endpoint, 
-      String vaultName) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-    
+  public static void requestVaultInventory(AmazonGlacierClient client, String vaultName) {
+
     try {
       /* 
        * Request list of all inventory request jobs for the specific vault 
        */
-      ListJobsResult listJobsResult = ListJobs.listJobs(credentials, endpoint, 
-          vaultName, "All");
+      ListJobsResult listJobsResult = ListJobs.listJobs(client, vaultName, "All");
 
       List<GlacierJobDescription> jobList = listJobsResult.getJobList();
       List<GlacierJobDescription> succeededJobs = new ArrayList<GlacierJobDescription>();
@@ -95,8 +94,8 @@ public class RequestVaultInventory extends GlacierOperation {
        * TODO: Override this with a --force flag
        */
       if(inProgressJobs.size() == 0 && succeededJobs.size() == 0) {
-        InitiateJobResult initJobResult = InitiateJob.initiateJob(credentials, endpoint, 
-              vaultName, InitJobType.INVENTORY_RETRIEVAL);
+        InitiateJobResult initJobResult = InitiateJob.initiateJob(client, vaultName, 
+            InitJobType.INVENTORY_RETRIEVAL);
         
         log.info("Created "+InitJobType.INVENTORY_RETRIEVAL+" job for vault '"+vaultName+"' " +
             "with jobId "+initJobResult.getJobId());
@@ -148,8 +147,8 @@ public class RequestVaultInventory extends GlacierOperation {
         
         GlacierJobDescription succeededJob = succeededJobs.remove(0);
         log.debug("Retrieving inventory for completed job: "+succeededJob.toString());
-        GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
-            vaultName, succeededJob.getJobId(), null);
+        GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(client, vaultName, 
+            succeededJob.getJobId(), null);
         
         String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
         log.debug("Retrieved vault inventory: "+jsonInventory);
@@ -168,8 +167,8 @@ public class RequestVaultInventory extends GlacierOperation {
          */
         for(GlacierJobDescription oldSucceededJob : succeededJobs) {
           log.debug("Retrieving inventory for older job: +"+oldSucceededJob.toString());
-          GetJobOutputResult oldJobOutputResult = GetJobOutput.getJobOutput(credentials, endpoint, 
-              vaultName, oldSucceededJob.getJobId(), null);
+          GetJobOutputResult oldJobOutputResult = GetJobOutput.getJobOutput(client, vaultName, 
+              oldSucceededJob.getJobId(), null);
           
           String oldJsonInventory = GetJobOutput.getJSONInventoryFromJobResult(oldJobOutputResult);
           log.debug("Retrieved vault inventory from older job: "+oldJsonInventory);

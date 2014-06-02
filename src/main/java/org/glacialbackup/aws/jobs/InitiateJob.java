@@ -6,7 +6,6 @@ package org.glacialbackup.aws.jobs;
 import net.sourceforge.argparse4j.inf.Namespace;
 import org.glacialbackup.aws.GlacierOperation;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.InitiateJobRequest;
 import com.amazonaws.services.glacier.model.InitiateJobResult;
@@ -42,11 +41,8 @@ public class InitiateJob extends GlacierOperation {
     return false;
   }
   
-  public static InitiateJobResult initiateJob(AWSCredentials credentials, String endpoint, 
-      String vaultName, InitJobType jobType) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
+  public static InitiateJobResult initiateJob(AmazonGlacierClient client, String vaultName, 
+      InitJobType jobType) {
     
     InitiateJobRequest inventoryJobRequest = 
         new InitiateJobRequest()

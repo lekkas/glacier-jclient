@@ -10,7 +10,6 @@ import java.io.InputStreamReader;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.glacialbackup.aws.GlacierOperation;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.GetJobOutputRequest;
 import com.amazonaws.services.glacier.model.GetJobOutputResult;
@@ -42,11 +41,8 @@ public class GetJobOutput extends GlacierOperation {
    * archives.
    * @return
    */
-  public static GetJobOutputResult getJobOutput(AWSCredentials credentials, String endpoint, 
-      String vaultName, String jobId, String range) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
+  public static GetJobOutputResult getJobOutput(AmazonGlacierClient client, String vaultName, 
+      String jobId, String range) {
     
     GetJobOutputRequest jobOutputRequest = new GetJobOutputRequest()
         .withVaultName(vaultName)

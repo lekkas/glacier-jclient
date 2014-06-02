@@ -7,6 +7,7 @@ import org.glacialbackup.aws.GlacierOperation;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
+import com.amazonaws.services.glacier.model.CompleteMultipartUploadResult;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
@@ -38,21 +39,48 @@ public class UploadMultipartArchive extends GlacierOperation {
 
   }
   
-  public static void initiateMultipartUpload() {
+  public static void initiateMultipartUpload(AmazonGlacierClient client, String vaultName, 
+      String description, String partSize) {
     
   }
   
-  public static void uploadPart() {
+  /**
+   * Uploads part of archive.
+   * 
+   * @param vaultName
+   * @param uploadId
+   * @param partBytes
+   * @param checksum
+   * @param contentRange
+   * @return the checksum returned by AWS
+   */
+  public static String uploadPart(AmazonGlacierClient client, String vaultName, String uploadId, 
+      byte[] partBytes, String checksum, String contentRange) {
     
+    
+    return null;
   }
   
-  public static void completeMultipartUpload() {
-    
+  /**
+   * Complete multipart upload.
+   * 
+   * @param client
+   * @param vaultName
+   * @param checksum
+   * @param fileSize
+   * @return Location of uploaded archive
+   */
+  public static void completeMultipartUpload(AmazonGlacierClient client, String vaultName, 
+      String checksum, String fileSize) {
+
   }
   
   public static void resumeMultipartUpload(AmazonGlacierClient client) {
     
   }
-  
+
+  public static void listParts() {
+    
+  }
 
 }

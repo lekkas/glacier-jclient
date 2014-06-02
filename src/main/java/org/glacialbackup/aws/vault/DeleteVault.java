@@ -27,12 +27,14 @@ public class DeleteVault extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      deleteVault(loadCredentials(
-          argOpts.getString("credentials")),
-          getEndpoint(argOpts.getString("endpoint")),
-          argOpts.getString("delete"));
-      
       String vaultName = argOpts.getString("delete");
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+      client.setEndpoint(endpoint);
+      
+      deleteVault(client, vaultName);
+      
       log.info("Deleted vault '" + vaultName+"'");
       
       /*
@@ -66,11 +68,7 @@ public class DeleteVault extends GlacierOperation {
    * @param endpoint
    * @param vaultName
    */
-  public static void deleteVault(AWSCredentials credentials, String endpoint, String vaultName) {
-
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-    
+  public static void deleteVault(AmazonGlacierClient client, String vaultName) {
     DeleteVaultRequest request = new DeleteVaultRequest().withVaultName(vaultName);
     client.deleteVault(request);
   }

@@ -3,7 +3,6 @@
  */
 package org.glacialbackup.aws.cache;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class VaultInventory {
