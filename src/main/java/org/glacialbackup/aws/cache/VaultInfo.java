@@ -18,8 +18,7 @@ public class VaultInfo {
   private String vaultARN;
   private String vaultName;
   
-  String cachedInventoryDate;
-  List<ArchiveInfo> inventory;
+  private List<ArchiveInfo> inventory;
   
   public VaultInfo() {
     
@@ -107,20 +106,6 @@ public class VaultInfo {
    */
   public void setVaultName(String vaultName) {
     this.vaultName = vaultName;
-  }
-
-  /**
-   * @return the cachedInventoryDate
-   */
-  public String getCachedInventoryDate() {
-    return cachedInventoryDate;
-  }
-
-  /**
-   * @param cachedInventoryDate the cachedInventoryDate to set
-   */
-  public void setCachedInventoryDate(String cachedInventoryDate) {
-    this.cachedInventoryDate = cachedInventoryDate;
   }
 
   /**

@@ -5,8 +5,6 @@ package org.glacialbackup;
 
 import java.io.IOException;
 
-import org.glacialbackup.aws.cache.LocalCache;
-import org.glacialbackup.aws.cache.VaultInfo;
 import org.glacialbackup.cli.CLIArguments;
 import org.glacialbackup.cli.CLICommands;
 import org.slf4j.Logger;
@@ -21,17 +19,7 @@ public class GlacialBackup {
   public static Logger log = LoggerFactory.getLogger(GlacialBackup.class);
   
   public static void main(String[] args) throws IOException, InterruptedException {
-    
-    LocalCache cache = LocalCache.loadCache();
-    log.info("cached vaults: "+cache.getVaults().size());
-    VaultInfo v = new VaultInfo();
-    v.setVaultName("test");
-    
-    cache.getVaults().add(v);
-    cache.saveCache();
-    log.info("cached vaults: "+cache.getVaults().size());
-    
-    /*
+
     ArgumentParser parser = CLIArguments.createArgsParser();
     Namespace ns;
     try {
@@ -41,6 +29,6 @@ public class GlacialBackup {
     } catch (ArgumentParserException e) {
       parser.handleError(e);
       System.exit(1);
-    }*/
+    }
   }
 }

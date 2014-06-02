@@ -6,6 +6,7 @@ package org.glacialbackup.aws.vault;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.aws.cache.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +16,8 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DescribeVaultRequest;
 import com.amazonaws.services.glacier.model.DescribeVaultResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class RequestVaultMetadata extends GlacierOperation {
 
@@ -34,15 +37,10 @@ public class RequestVaultMetadata extends GlacierOperation {
             argOpts.getString("meta"));
       
       log.debug("requestVaultMetadata() for '"+vaultName+"': "+result.toString());
-      StringBuilder buf = new StringBuilder();
-      buf.append("\nCreationDate: " + result.getCreationDate());
-      buf.append("\nLastInventoryDate: " + result.getLastInventoryDate());
-      buf.append("\nNumberOfArchives: " + result.getNumberOfArchives());
-      buf.append("\nSizeInBytes: " + result.getSizeInBytes());
-      buf.append("\nVaultARN: " + result.getVaultARN()); 
-      buf.append("\nVaultName: " + result.getVaultName());
-      buf.append("\n");
-      System.out.print(buf.toString());
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      String json = gson.toJson(result);
+      LocalCache.loadCache().addVaultInfo(json);
+      System.out.println(json);
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);
@@ -70,7 +68,7 @@ public class RequestVaultMetadata extends GlacierOperation {
 
     AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
-    
+
     DescribeVaultRequest request = new DescribeVaultRequest().withVaultName(vaultName);
     DescribeVaultResult result = client.describeVault(request);
     

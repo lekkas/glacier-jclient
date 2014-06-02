@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -36,7 +37,131 @@ public class LocalCache {
     
   }
 
-  public void saveCache() {
+  /**
+   * Adds a VaultInfo object in the cache. This operation has no effect if the cache already
+   * contains a vault with the same vaultARN that has a lastInventoryDate which is not older than 
+   * the one we are trying to add.
+   * 
+   * Based on API x-amz-glacier-version: 2012-06-01
+   *  
+   * @param vaultInfoJson The JSON reply from the Describe Vault request
+   */
+  public void addVaultInfo(String vaultInfoJson) {
+    Gson gson = new Gson();
+    VaultInfo vaultInfo = gson.fromJson(vaultInfoJson, VaultInfo.class);
+    
+    VaultInfo existingVault = null;
+    Iterator<VaultInfo> it = getVaults().iterator();
+    while(it.hasNext()) {
+      VaultInfo v = it.next();
+      if(v.getVaultARN().equals(vaultInfo.getVaultARN())) {
+        existingVault = v;
+        break;
+      }
+    }
+     
+    if(existingVault == null ) {
+      getVaults().add(vaultInfo);
+      saveCache();
+      log.debug("Added vault "+vaultInfo.getVaultName()+" to cache.");
+    }
+    else if (vaultInfo.getLastInventoryDate().
+        compareTo(existingVault.getLastInventoryDate()) > 0) {
+      getVaults().remove(existingVault);
+      getVaults().add(vaultInfo);
+      saveCache();
+      log.debug("Added vault "+vaultInfo.getVaultName()+" to cache.");
+    }
+    else {
+      log.debug("Vault "+vaultInfo.getVaultName()+"is already in the cache with the same or more" +
+      		" recent last inventory date.");
+      return;
+    }
+  }
+  
+  /*
+   * Add vault list to cache.
+   * TODO: Currently we are converting json to objects back-and-forth in order to insert each 
+   * VaultInfo object to the cache.
+   */
+  public void addVaultInfoList(String listVaultInfoJson) {
+    Gson gson = new Gson();
+    VaultInfo[] list = gson.fromJson(listVaultInfoJson, VaultInfo[].class);
+    
+    for(int i = 0; i < list.length; i++) {
+      addVaultInfo(gson.toJson(list[i]));
+    }
+  }
+  
+  /*
+   * Removes vault from cache
+   */
+  public void deleteVaultInfo(String vaultName) {
+    Iterator<VaultInfo> it = getVaults().iterator();
+    while(it.hasNext()) {
+      VaultInfo v = it.next();
+      if(v.getVaultName().equals(vaultName)) {
+        it.remove();
+        log.debug("Removed vault "+vaultName+" from cache.");
+        break;
+      }
+    }
+  }
+  
+  /*
+   * Adds an ArchiveInfo object in the cache. This operation adds the object to the cache if 
+   * there is no archive with the same archiveId already in the list.
+   * 
+   * Based on API x-amz-glacier-version: 2012-06-01
+   */
+  public void addArchiveInfo(String archiveInfoJson, String vaultARN) {
+    Gson gson = new Gson();
+    ArchiveInfo archiveInfo = gson.fromJson(archiveInfoJson, ArchiveInfo.class);
+    
+    VaultInfo vault = null;
+    for(VaultInfo v : getVaults()) {
+      if(v.getVaultARN().equals(vaultARN)) {
+        vault = v;
+        break;
+      }
+    }
+    
+    if(vault == null) {
+      log.debug("Could not add archive to cache; vault not found: "+vaultARN);
+      return;
+    }
+    
+    for(ArchiveInfo a : vault.getInventory()) {
+      if(a.getArchiveId().equals(archiveInfo)) {
+        log.debug("Archive "+archiveInfo.getArchiveId()+" is already in the cache");
+        return;
+      }
+    }
+    vault.getInventory().add(archiveInfo);
+    saveCache();
+    log.debug("Added archive "+archiveInfo.getArchiveId()+" to cache under vault "+
+        vault.getVaultName());
+  }
+  
+  /*
+   * Add archive list to cache.
+   * 
+   * TODO: Currently we are converting json to objects back-and-forth in order to insert each 
+   * ArciveInfo object to the cache.
+   */
+  public void addArchiveInfoList(String archiveInfoListJson, String vaultARN) {
+    Gson gson = new Gson();
+    ArchiveInfo[] list = gson.fromJson(archiveInfoListJson, ArchiveInfo[].class);
+    
+    for(int i = 0; i < list.length; i++) {
+      addArchiveInfo(gson.toJson(list[i]), vaultARN);
+    }
+  }
+  
+  /*
+   * Saves objects to cache
+   */
+  private void saveCache() {
     Gson gson = new Gson();
     String json = gson.toJson(this);
     
