@@ -19,7 +19,7 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * things here (i.e. credentials loading and client initialization) but decided that it would be
  * cleaner design to include all operations of the AWS request in each implemented 
  */
-public abstract class GlacierOperation {
+public abstract class GlacierOperation extends GenericOperation {
   
   /*
    * AmazonServiceException extended Exceptions :
@@ -51,14 +51,14 @@ public abstract class GlacierOperation {
    * 
    */
   
-  protected final Namespace argOpts;
+  
   private static final String DEFAULT_CREDENTIALS_PATH = 
       System.getProperty("user.home") + "/.aws/aws.properties";
   
   public static Logger log = LoggerFactory.getLogger(GlacierOperation.class);
   
   public GlacierOperation(Namespace argOpts) {
-      this.argOpts = argOpts;
+      super(argOpts);
   }
 
   /**
@@ -110,7 +110,4 @@ public abstract class GlacierOperation {
       }
       
   }
-  
-  public abstract void exec();
-  public abstract boolean valid();
 }

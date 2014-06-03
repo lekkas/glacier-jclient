@@ -214,6 +214,17 @@ public class LocalCache {
       prettyPrintVault(v);
   }
   
+  private void prettyPrintInProgressUpload(InProgressUpload upload) {
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    String json = gson.toJson(upload);
+    System.out.println(json);
+  }
+  
+  public void prettyPrintInProgressUploads() {
+    for(InProgressUpload u : getInProgressUploads())
+      prettyPrintInProgressUpload(u);
+  }
+  
   public static LocalCache loadCache() {
     if(cacheFile.exists()) {
       LocalCache cache = loadJSONFromFile();
