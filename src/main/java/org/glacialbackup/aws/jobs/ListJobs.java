@@ -3,19 +3,16 @@
  */
 package org.glacialbackup.aws.jobs;
 
-import java.util.List;
-
 import net.sourceforge.argparse4j.inf.Namespace;
-
 import org.glacialbackup.aws.GlacierOperation;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
-import com.amazonaws.services.glacier.model.GlacierJobDescription;
 import com.amazonaws.services.glacier.model.ListJobsRequest;
 import com.amazonaws.services.glacier.model.ListJobsResult;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 public class ListJobs extends GlacierOperation {
 
@@ -38,34 +35,9 @@ public class ListJobs extends GlacierOperation {
       
       log.debug("listJobs() response for '"+vaultName+"' ("+listOption+"): "+
           listJobsResult.toString());
-      
-      List<GlacierJobDescription> jobList = listJobsResult.getJobList();
-      StringBuilder buf = new StringBuilder();
-      for(GlacierJobDescription job : jobList) {
-        buf.append("\nJobId: "+job.getJobId());
-        buf.append("\nAction: "+job.getAction());
-        buf.append("\nStatusCode: "+job.getStatusCode());
-        buf.append("\nStatusMessage: "+job.getStatusMessage());
-        buf.append("\nCompleted: "+job.isCompleted());
-        buf.append("\nCreationDate: "+job.getCreationDate());
-        buf.append("\nCompletionDate: "+job.getCompletionDate());
-        buf.append("\nJobDescription: "+job.getJobDescription());
-
-        buf.append("\nArchiveId: "+job.getArchiveId());
-        buf.append("\nArchiveSizeInBytes: "+job.getArchiveSizeInBytes());
-        buf.append("\nArchiveSHA256TreeHash: "+job.getArchiveSHA256TreeHash());
-        
-        buf.append("\nInventorySizeInBytes: "+job.getInventorySizeInBytes());
-        buf.append("\nRetrievalByteRange: "+job.getRetrievalByteRange());
-        buf.append("\nSHA256TreeHash: "+job.getSHA256TreeHash());
-        buf.append("\nSNSTopic: "+job.getSNSTopic());
-        buf.append("\nVaultARN: "+job.getVaultARN());
-        buf.append("\n");
-      }
-      System.out.print(buf.toString());
-      if(jobList.size() == 0)
-        log.info("No jobs found for vault '"+vaultName+"' ("+listOption+")");
-      
+      Gson gson = new GsonBuilder().setPrettyPrinting().create();
+      String json = gson.toJson(listJobsResult, ListJobsResult.class);
+      System.out.println(json);
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
       System.exit(1);

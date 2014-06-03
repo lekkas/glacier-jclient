@@ -4,7 +4,6 @@
 package org.glacialbackup;
 
 import java.io.IOException;
-import org.glacialbackup.aws.cache.LocalCache;
 import org.glacialbackup.cli.CLIArguments;
 import org.glacialbackup.cli.CLICommands;
 import org.slf4j.Logger;
@@ -29,7 +28,5 @@ public class GlacialBackup {
       parser.handleError(e);
       System.exit(1);
     }
-    // System.out.println("---- CACHE ----");
-    // LocalCache.loadCache().prettyPrintVaults();
   }
 }

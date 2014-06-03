@@ -156,7 +156,6 @@ public class RequestVaultInventory extends GlacierOperation {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         JsonParser jp = new JsonParser();
         String prettyJson = gson.toJson(jp.parse(jsonInventory));
-        System.out.println("--- INVENTORY ---");
         System.out.println(prettyJson);
         
         LocalCache.loadCache().addInventory(jsonInventory);

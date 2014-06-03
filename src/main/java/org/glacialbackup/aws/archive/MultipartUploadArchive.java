@@ -46,26 +46,47 @@ public class MultipartUploadArchive extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      String filePath = argOpts.getString("upload");
+      String archiveFilePath = argOpts.getString("upload");
       String vaultName = argOpts.getString("vault");
       String endpoint = getEndpoint(argOpts.getString("endpoint"));
       String description = argOpts.getString("description");
       
-      if (filePath.startsWith("~" + File.separator)) { 
-        filePath = System.getProperty("user.home") + filePath.substring(1);
+      if (archiveFilePath.startsWith("~" + File.separator)) { 
+        archiveFilePath = System.getProperty("user.home") + archiveFilePath.substring(1);
       }
       
       if(description == null) {
-        description = (new File(filePath)).getName();
+        description = (new File(archiveFilePath)).getName();
       }
-
+      
+      File file = new File(archiveFilePath);
+      RandomAccessFile in = new RandomAccessFile(file, "r");
+     
       AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
       AmazonGlacierClient client = new AmazonGlacierClient(credentials);
       client.setEndpoint(endpoint);
 
-      String uploadId = LocalCache.loadCache().getInProgressUpload(vaultName, filePath);
-      uploadArchive(credentials, endpoint, vaultName, filePath, description, 
-          Long.parseLong(partSize), uploadId);
+      String uploadId = LocalCache.loadCache().getInProgressUpload(vaultName, archiveFilePath);
+      if(uploadId == null) { /* New Upload */ 
+        uploadId = initiateMultipartUpload(client, vaultName, description, 
+            Long.parseLong(partSize));
+
+        /* Cache the new multipart upload */
+        InProgressUpload inProgressUpload = new InProgressUpload(archiveFilePath, 
+            uploadId, vaultName);
+        LocalCache.loadCache().addInProgressUpload(inProgressUpload);
+        
+        String archiveChecksum = uploadParts(client, vaultName, 0, Long.parseLong(partSize), 
+            null, uploadId, in);
+        completeMultipartUpload(client, vaultName, archiveChecksum, uploadId, in.length());
+      }
+      else { /* Resuming Upload*/
+        long resumeStartContentRange = resumeMultipartUpload(client, vaultName, uploadId, in);
+        String archiveChecksum = uploadParts(client, vaultName, resumeStartContentRange, 
+            Long.parseLong(partSize), null, uploadId, in);
+        completeMultipartUpload(client, vaultName, archiveChecksum, uploadId, in.length());
+      }
+      LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
     } catch(FileNotFoundException ex) {
       log.error("FileNotFoundException: "+ex.getMessage());
       System.exit(1);
@@ -83,49 +104,7 @@ public class MultipartUploadArchive extends GlacierOperation {
     return argOpts.getString("command_name").equals("archive") && 
         argOpts.getString("upload") != null;
   }
-  
-  /**
-   * Upload archive to Amazon Glacier. All archives are uploaded using the multipart operation. 
-   * 
-   * @param credentials
-   * @param endpoint
-   * @param vaultName
-   * @param archiveFilePath
-   * @param description Archive description. If null the description will match the file name.
-   * @param partSize
-   * @param uploadId Set to null for new archives. If not null the operation tries to resume
-   * the specified multipart upload.
-   */
-  public static void uploadArchive(AWSCredentials credentials, String endpoint, 
-      String vaultName, String archiveFilePath, String description, 
-      long partSize, String uploadId) throws FileNotFoundException, IOException {
     
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-    
-    File file = new File(archiveFilePath);
-    RandomAccessFile in = new RandomAccessFile(file, "r");
-    String descr = (description!=null)?description:file.getName();
-   
-    if(uploadId == null) { /* New Upload */ 
-      uploadId = initiateMultipartUpload(client, vaultName, descr, partSize);
-      
-      /*
-       * Cache it
-       */
-      InProgressUpload inProgressUpload = new InProgressUpload(archiveFilePath, 
-          uploadId, vaultName);
-      LocalCache.loadCache().addInProgressUpload(inProgressUpload);
-      
-      String archiveChecksum = uploadParts(client, vaultName, 0, partSize, null, uploadId, in);
-      completeMultipartUpload(client, vaultName, archiveChecksum, uploadId, in.length());
-      LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
-    }
-    else { /* Resuming Upload*/
-      resumeMultipartUpload(client, vaultName, uploadId, in);
-    }
-  }
-  
   /**
    * Initiates multipart upload.
    * 
@@ -282,7 +261,17 @@ public class MultipartUploadArchive extends GlacierOperation {
       log.info("Archive was successfully created: "+compResult.getLocation());
   }
   
-  public static void resumeMultipartUpload(AmazonGlacierClient client, String vaultName, 
+  /**
+   * Try to resume from in progress multipart upload
+   * 
+   * @param client
+   * @param vaultName
+   * @param uploadId
+   * @param in
+   * @return the first byte of the next archive part to upload
+   * @throws IOException
+   */
+  public static long resumeMultipartUpload(AmazonGlacierClient client, String vaultName, 
       String uploadId, RandomAccessFile in) throws IOException {
 
     log.info("Resuming upload operation.");
@@ -313,20 +302,18 @@ public class MultipartUploadArchive extends GlacierOperation {
      * Find last uploaded part and resume from there.
      */
     int listSize = multiPartUploadStatus.getUploadedParts().size();
-    String lastContentRange = multiPartUploadStatus
-        .getUploadedParts()
-        .get(listSize-1)
-        .getRangeInBytes();
-    
-    String range[] = lastContentRange.split("-");
-    long nextStartContentRange = Long.parseLong(range[1]) + 1L;
-    
-    
-    String checksum = uploadParts(client, vaultName, nextStartContentRange, partSize, 
-        binaryChecksums, uploadId, in);
-    
-    completeMultipartUpload(client, vaultName, checksum, uploadId, in.length());
-    LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
+    if(listSize == 0)
+      return 0L;
+    else {
+      String lastContentRange = multiPartUploadStatus
+          .getUploadedParts()
+          .get(listSize-1)
+          .getRangeInBytes();
+      
+      String range[] = lastContentRange.split("-");
+      long nextStartContentRange = Long.parseLong(range[1]) + 1L;
+      return nextStartContentRange;
+    }
   }
 
   /**
