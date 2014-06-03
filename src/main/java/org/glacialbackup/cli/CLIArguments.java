@@ -160,26 +160,38 @@ public class CLIArguments {
     // vaultOptions.addArgument("vault-name").metavar("<vault name>").nargs(1);
     
     Subparser archive = commands.addParser("archive").aliases("a").help("Archive operations");
-    ArgumentGroup archiveOptions = archive.addArgumentGroup("Archive operation options");
+    MutuallyExclusiveGroup archiveOptions = 
+        archive.addMutuallyExclusiveGroup("Archive operations");
+   
+    archive.addArgument("-e","--endpoint")
+      .help("Set endpoint "+Arrays.asList(Endpoints).toString())
+      .choices(new CaseInsensitiveStringChoice(Endpoints))
+      .metavar("<region>")
+      .required(true);
     
-    archiveOptions.addArgument("-d", "--defrost")
-        .help("Request arcive (Takes ~4.5 hrs)")
-        .metavar("<archive-id>");
+    archive.addArgument("-v","--vault")
+      .help("Vault name for job operations")
+      .metavar("<name>")
+      .required(true);
+
+    archive.addArgument("--credentials")
+      .help("Location of AWS credentials")
+      .metavar("<file>");
     
-    archiveOptions.addArgument("-r", "--retrieve")
-        .help("Retrieve archive")
-        .metavar("<archive-id>");
+    archive.addArgument("--description")
+    .help("Description of archive (default: File name)")
+    .metavar("<description>");
     
-    archiveOptions.addArgument("--delete")
-        .help("Delete archive")
-        .metavar("<archive-id>");
-    
-    archiveOptions.addArgument("-u", "--upload")
+    archiveOptions.addArgument("--upload")
         .help("Upload archive")
         .metavar("<file>");
+    
+    archiveOptions.addArgument("--abort")
+      .help("Abort archive upload operation")
+      .metavar("<uploadId>");
 
     Subparser jobs = commands.addParser("job").aliases("j").help("Job operations");
-    ArgumentGroup jobOptions = jobs.addArgumentGroup("Job operation options");
+    ArgumentGroup jobOptions = jobs.addArgumentGroup("Job operations");
     
     jobs.addArgument("-e","--endpoint")
         .help("Set endpoint "+Arrays.asList(Endpoints).toString())
@@ -201,10 +213,6 @@ public class CLIArguments {
         .choices(new CaseSensitiveStringChoice(Job_List_Options))
         .metavar("<selection>");
     
-    jobOptions.addArgument("--abort")
-        .help("Abort job")
-        .metavar("<job-id>");
-
     return parser;
   }
 }

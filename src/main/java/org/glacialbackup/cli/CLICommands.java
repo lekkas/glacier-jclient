@@ -9,7 +9,8 @@ import java.util.List;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.archive.UploadArchive;
+import org.glacialbackup.aws.archive.AbortMultipartUploadArchive;
+import org.glacialbackup.aws.archive.MultipartUploadArchive;
 import org.glacialbackup.aws.jobs.ListJobs;
 import org.glacialbackup.aws.vault.CreateVault;
 import org.glacialbackup.aws.vault.DeleteVault;
@@ -30,7 +31,8 @@ public class CLICommands {
       operations.add(new ListVaults(argOpts));
       
       /* Archive Operations */
-      operations.add(new UploadArchive(argOpts));
+      operations.add(new MultipartUploadArchive(argOpts));
+      operations.add(new AbortMultipartUploadArchive(argOpts));
       
       /* Job Operations */
       operations.add(new ListJobs(argOpts));

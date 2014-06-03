@@ -28,8 +28,8 @@ public class CreateVault extends GlacierOperation {
   public void exec() {
     try {
       String vaultName = argOpts.getString("create");
-      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
       String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
       AmazonGlacierClient client = new AmazonGlacierClient(credentials);
       client.setEndpoint(endpoint);
 

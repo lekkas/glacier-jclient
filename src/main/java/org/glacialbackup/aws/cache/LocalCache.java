@@ -39,6 +39,62 @@ public class LocalCache {
   }
 
   /**
+   * Add in progress multipart upload in the cache. 
+   * @param uploadInfo
+   */
+  public void addInProgressUpload(InProgressUpload inProgressUpload) {
+    Iterator<InProgressUpload> it = getInProgressUploads().iterator();
+    while(it.hasNext()) {
+      InProgressUpload u = it.next();
+      if(u.getArchiveFilePath().equals(inProgressUpload.getArchiveFilePath())) {
+        log.debug("There is already one upload job for archive "+u.getArchiveFilePath());
+        return;
+      }
+    }
+    getInProgressUploads().add(inProgressUpload);
+    saveCache();
+    log.debug("Added multipart job for archive "+inProgressUpload.getArchiveFilePath()+" with job " +
+    		"id "+inProgressUpload.getMultipartUploadId());
+  }
+  
+  /**
+   * Find upload Id
+   * 
+   * @param vaultName
+   * @param filePath
+   * @return UploadId , null if no matching jobs were found.
+   */
+  public String getInProgressUpload(String vaultName, String filePath) {
+    Iterator<InProgressUpload> it = getInProgressUploads().iterator();
+    while(it.hasNext()) {
+      InProgressUpload u = it.next();
+      if(u.getArchiveFilePath().equals(filePath) && u.getVault().equals(vaultName)) {
+        String uploadId = u.getMultipartUploadId();
+        log.debug("Found pending multipart upload for file "+filePath+" on vault '"+vaultName+"'");
+        return uploadId;
+      }
+    }
+    return null;
+  }
+  
+  /*
+   * Remove in progress upload from cache
+   */
+  public void deleteInProgressUpload(String vaultName, String uploadId) {
+    Iterator<InProgressUpload> it = getInProgressUploads().iterator();
+    while(it.hasNext()) {
+      InProgressUpload u = it.next();
+      if(u.getMultipartUploadId().equals(uploadId) && u.getVault().equals(vaultName)) {
+        String fname = u.getArchiveFilePath();
+        it.remove();
+        saveCache();
+        log.debug("Removed cached upload operation for archive "+fname+" on vault '"+vaultName+
+            "' with upload id "+uploadId);
+        break;
+      }
+    }
+  }
+  /**
    * Adds a VaultInfo object in the cache. 
    * 
    * @param vaultInfoJson The JSON reply from the Describe Vault request
