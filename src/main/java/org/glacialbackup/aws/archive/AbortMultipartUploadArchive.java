@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacialbackup.aws.archive;
 
@@ -14,6 +14,9 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
 
+/**
+ * Abort multipart upload operation wrapper.
+ */
 public class AbortMultipartUploadArchive extends GlacierOperation {
 
   public AbortMultipartUploadArchive(Namespace argOpts) {
@@ -28,31 +31,41 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
     AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
     AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
-    
+
     try {
       abortOperation(client, vaultName, uploadId);
-      LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
-      log.info("Aborted multipart upload with id "+uploadId);
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
-    }
 
+      /*
+       * Remove entry from the cache
+       */
+      LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
+
+      log.info("Aborted multipart upload with id " + uploadId);
+    } catch (AmazonServiceException ex) {
+      log.error("AmazonServiceException: " + ex.getMessage());
+    } catch (AmazonClientException ex) {
+      log.error("AmazonClientException: " + ex.getMessage());
+    }
   }
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("archive") && 
-        argOpts.getString("abort") != null;
+    return argOpts.getString("command_name").equals("archive")
+        && argOpts.getString("abort") != null;
   }
-  
-  public static void abortOperation(AmazonGlacierClient client, String vaultName, 
-      String uploadId) {
-    
-    AbortMultipartUploadRequest abortMultipartUploadRequest = 
+
+  /**
+   * Multipart upload abort.
+   * 
+   * @param client
+   * @param vaultName
+   * @param uploadId
+   */
+  public static void abortOperation(AmazonGlacierClient client, String vaultName, String uploadId) {
+
+    AbortMultipartUploadRequest abortMultipartUploadRequest =
         new AbortMultipartUploadRequest().withVaultName(vaultName).withUploadId(uploadId);
-    
+
     client.abortMultipartUpload(abortMultipartUploadRequest);
   }
 }

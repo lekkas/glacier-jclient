@@ -1,13 +1,15 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacialbackup.aws.archive;
 
-import org.glacialbackup.aws.GlacierOperation;
-
 import net.sourceforge.argparse4j.inf.Namespace;
 
+import org.glacialbackup.aws.GlacierOperation;
 
+/**
+ * TODO: Delete archive glacier operation wrapper.
+ */
 public class DeleteArchive extends GlacierOperation {
 
   public DeleteArchive(Namespace argOpts) {
@@ -21,7 +23,7 @@ public class DeleteArchive extends GlacierOperation {
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("archive") && 
+    return argOpts.getString("command_name").equals("archive") &&
         argOpts.getString("delete") != null;
   }
 
