@@ -15,6 +15,7 @@ import java.util.List;
 import org.glacialbackup.aws.GlacierOperation;
 import org.glacialbackup.aws.cache.InProgressUpload;
 import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.aws.archive.MultipartUploadStatus;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -31,10 +32,13 @@ import com.amazonaws.services.glacier.model.PartListElement;
 import com.amazonaws.services.glacier.model.UploadMultipartPartRequest;
 import com.amazonaws.services.glacier.model.UploadMultipartPartResult;
 import com.amazonaws.util.BinaryUtils;
+import com.google.gson.Gson;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-
+/**
+ * TODO: Check 10.000 part limit from the API
+ */
 public class MultipartUploadArchive extends GlacierOperation {
 
   public static String partSize = "1048576"; // 1 MB.
@@ -81,9 +85,11 @@ public class MultipartUploadArchive extends GlacierOperation {
         completeMultipartUpload(client, vaultName, archiveChecksum, uploadId, in.length());
       }
       else { /* Resuming Upload*/
-        long resumeStartContentRange = resumeMultipartUpload(client, vaultName, uploadId, in);
+        LinkedList<byte[]> binaryChecksums = new LinkedList<byte[]>();
+        long resumeStartContentRange = resumeMultipartUpload(client, vaultName, 
+            uploadId, binaryChecksums);
         String archiveChecksum = uploadParts(client, vaultName, resumeStartContentRange, 
-            Long.parseLong(partSize), null, uploadId, in);
+            Long.parseLong(partSize), binaryChecksums, uploadId, in);
         completeMultipartUpload(client, vaultName, archiveChecksum, uploadId, in.length());
       }
       LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
@@ -267,53 +273,40 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @param client
    * @param vaultName
    * @param uploadId
-   * @param in
-   * @return the first byte of the next archive part to upload
+   * @param binaryChecksums a list to store the checksums of the uploaded parts
+   * @return Offset of the first byte of the next archive part to upload. The returned value
+   * will exceed the actual file size if all parts of the archive have already been uploaded.
    * @throws IOException
    */
   public static long resumeMultipartUpload(AmazonGlacierClient client, String vaultName, 
-      String uploadId, RandomAccessFile in) throws IOException {
+      String uploadId, LinkedList<byte[]> binaryChecksums) throws IOException {
 
-    log.info("Resuming upload operation.");
     MultipartUploadStatus multiPartUploadStatus = listParts(client, vaultName, uploadId);
+    log.info("Resuming upload. uploadId: "+uploadId+", partSize: " +
+    		multiPartUploadStatus.getPartSizeInBytes());
 
     long partSize = multiPartUploadStatus.getPartSizeInBytes();
     long start = 0;
-    long end = start + partSize - 1;
 
     /*
      * Retrieve binary checksums of uploaded parts
      */
-    List<byte[]> binaryChecksums = new LinkedList<byte[]>();
     for(PartListElement p : multiPartUploadStatus.getUploadedParts()) {
-      String range = String.format("%s-%s", Long.toString(start), Long.toString(end));
-      if(!range.equals(p.getRangeInBytes())) {
+      String range[] = p.getRangeInBytes().split("-");
+      if(!range[0].equals(Long.toString(start))) {
         log.info("TODO: Missing part recovery. Check log for details.");
         System.exit(1);
       }
       byte[] binaryChecksum = BinaryUtils.fromHex(p.getSHA256TreeHash());
       binaryChecksums.add(binaryChecksum);
-      
       start = start + partSize;
-      end = start + partSize - 1;
     }
     
     /*
      * Find last uploaded part and resume from there.
      */
     int listSize = multiPartUploadStatus.getUploadedParts().size();
-    if(listSize == 0)
-      return 0L;
-    else {
-      String lastContentRange = multiPartUploadStatus
-          .getUploadedParts()
-          .get(listSize-1)
-          .getRangeInBytes();
-      
-      String range[] = lastContentRange.split("-");
-      long nextStartContentRange = Long.parseLong(range[1]) + 1L;
-      return nextStartContentRange;
-    }
+    return listSize * partSize;
   }
 
   /**
@@ -334,9 +327,9 @@ public class MultipartUploadArchive extends GlacierOperation {
       .withVaultName(vaultName)
       .withUploadId(uploadId);
     
-    listPartsResult = client.listParts(listPartsRequest);
-    
     MultipartUploadStatus uploadInfo = new MultipartUploadStatus();
+    
+    listPartsResult = client.listParts(listPartsRequest);
     uploadInfo.setArchiveDescription(listPartsResult.getArchiveDescription());
     uploadInfo.setCreationDate(listPartsResult.getCreationDate());
     uploadInfo.setMultipartUploadId(listPartsResult.getMultipartUploadId());
@@ -358,6 +351,9 @@ public class MultipartUploadArchive extends GlacierOperation {
       uploadInfo.getUploadedParts().addAll(listPartsResult.getParts());
       marker = listPartsResult.getMarker();
     }
+    Gson gson = new Gson();
+    String json = gson.toJson(uploadInfo.getUploadedParts());
+    log.debug("Uploaded part list: "+json);
     log.debug("Retrieved uploaded parts list ("+uploadInfo.getUploadedParts().size()+" parts have" +
     		"been uploaded already)");
     return uploadInfo;

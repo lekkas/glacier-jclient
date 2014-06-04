@@ -166,13 +166,6 @@ public class LocalCache {
   public void addInventory(String jsonInventory) {
     Gson gson = new Gson();
     VaultInventory vaultInventory = gson.fromJson(jsonInventory, VaultInventory.class);
-    
-    /*
-    System.out.println("arn: "+vaultInventory.getVaultARN());
-    System.out.println("date: "+vaultInventory.getInventoryDate());
-    System.out.println("list size: "+vaultInventory.getArchiveList().size());
-    */
-    
     String vaultARN = vaultInventory.getVaultARN();
     for(VaultInfo v : getVaults()) {
       if(v.getVaultARN().equals(vaultARN)) {

@@ -22,7 +22,7 @@ public class GlacialBackup {
     Namespace ns;
     try {
       ns = parser.parseArgs(args);
-      System.out.println(ns);
+      log.debug(ns.toString());
       CLICommands.findAndExec(ns);
     } catch (ArgumentParserException e) {
       parser.handleError(e);
