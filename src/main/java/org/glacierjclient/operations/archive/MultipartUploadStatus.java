@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.archive;
+package org.glacierjclient.operations.archive;
 
 import java.util.List;
 

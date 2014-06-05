@@ -1,11 +1,11 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.jobs;
+package org.glacierjclient.operations.jobs;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacierclient.operations.GlacierOperation;
+import org.glacierjclient.operations.GlacierOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

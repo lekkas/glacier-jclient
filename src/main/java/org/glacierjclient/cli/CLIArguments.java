@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.cli;
+package org.glacierjclient.cli;
 
 import java.util.ArrayList;
 import java.util.Arrays;

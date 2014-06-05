@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacierclient.operations;
+package org.glacierjclient.operations;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,8 +36,8 @@ public abstract class GlacierOperation extends GenericOperation {
     super(argOpts);
     AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
     String endpoint = getEndpoint(argOpts.getString("endpoint"));
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
+    this.client = new AmazonGlacierClient(credentials);
+    this.client.setEndpoint(endpoint);
   }
 
   /**

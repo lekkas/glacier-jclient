@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacierclient.operations;
+package org.glacierjclient.operations;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 

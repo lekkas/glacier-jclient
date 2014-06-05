@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.vault;
+package org.glacierjclient.operations.vault;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,12 +9,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.glacierclient.operations.GlacierOperation;
-import org.glacierclient.operations.cache.model.LocalCache;
-import org.glacierclient.operations.jobs.InitiateJob;
-import org.glacierclient.operations.jobs.JobOutput;
-import org.glacierclient.operations.jobs.ListJobs;
-import org.glacierclient.operations.jobs.InitiateJob.InitJobType;
+import org.glacierjclient.operations.GlacierOperation;
+import org.glacierjclient.operations.cache.model.LocalCache;
+import org.glacierjclient.operations.jobs.InitiateJob;
+import org.glacierjclient.operations.jobs.JobOutput;
+import org.glacierjclient.operations.jobs.ListJobs;
+import org.glacierjclient.operations.jobs.InitiateJob.InitJobType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;

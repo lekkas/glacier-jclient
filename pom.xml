@@ -1,9 +1,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.lekkas.glacierclient</groupId>
-  <artifactId>glacierclient</artifactId>
+  <groupId>org.lekkas.glacierjclient</groupId>
+  <artifactId>glacier-jclient</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Glacial Client</name>
+  <name>Glacial JClient</name>
   <description>Java command-line interface for AWS Glacier</description>
   <inceptionYear>2014</inceptionYear>
   <dependencies>
@@ -63,7 +63,7 @@
 				</descriptorRefs>
  				<archive>
 					<manifest>
-						<mainClass>org.glacialbackup.GlacialBackup</mainClass>
+						<mainClass>org.glacierjclient.GlacialBackup</mainClass>
 					</manifest>
 				</archive>
 			</configuration>

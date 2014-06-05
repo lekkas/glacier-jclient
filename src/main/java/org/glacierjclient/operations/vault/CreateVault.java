@@ -1,10 +1,10 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.vault;
+package org.glacierjclient.operations.vault;
 
-import org.glacierclient.operations.GlacierOperation;
-import org.glacierclient.operations.cache.model.LocalCache;
+import org.glacierjclient.operations.GlacierOperation;
+import org.glacierjclient.operations.cache.model.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,12 +1,12 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.cache;
+package org.glacierjclient.operations.cache;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacierclient.operations.GenericOperation;
-import org.glacierclient.operations.cache.model.LocalCache;
+import org.glacierjclient.operations.GenericOperation;
+import org.glacierjclient.operations.cache.model.LocalCache;
 
 /*
  * Display cache information

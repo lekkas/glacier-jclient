@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.cache.model;
+package org.glacierjclient.operations.cache.model;
 
 public class ArchiveInfo {
   

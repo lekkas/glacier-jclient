@@ -1,23 +1,23 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.cli;
+package org.glacierjclient.cli;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacierclient.operations.GenericOperation;
-import org.glacierclient.operations.archive.AbortMultipartUploadArchive;
-import org.glacierclient.operations.archive.MultipartUploadArchive;
-import org.glacierclient.operations.cache.DisplayCache;
-import org.glacierclient.operations.jobs.ListJobs;
-import org.glacierclient.operations.vault.CreateVault;
-import org.glacierclient.operations.vault.DeleteVault;
-import org.glacierclient.operations.vault.ListVaults;
-import org.glacierclient.operations.vault.RequestVaultInventory;
-import org.glacierclient.operations.vault.RequestVaultMetadata;
+import org.glacierjclient.operations.GenericOperation;
+import org.glacierjclient.operations.archive.AbortMultipartUploadArchive;
+import org.glacierjclient.operations.archive.MultipartUploadArchive;
+import org.glacierjclient.operations.cache.DisplayCache;
+import org.glacierjclient.operations.jobs.ListJobs;
+import org.glacierjclient.operations.vault.CreateVault;
+import org.glacierjclient.operations.vault.DeleteVault;
+import org.glacierjclient.operations.vault.ListVaults;
+import org.glacierjclient.operations.vault.RequestVaultInventory;
+import org.glacierjclient.operations.vault.RequestVaultMetadata;
 
 public class CLICommands {
 

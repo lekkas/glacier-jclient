@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacierclient.operations.jobs;
+package org.glacierjclient.operations.jobs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.io.InputStreamReader;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacierclient.operations.GlacierOperation;
+import org.glacierjclient.operations.GlacierOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
