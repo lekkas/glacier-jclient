@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.operations;
+package org.glacierclient.operations;
 
 import java.io.File;
 import java.io.IOException;

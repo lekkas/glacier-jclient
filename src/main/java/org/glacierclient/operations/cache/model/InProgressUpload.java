@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.operations.cache.model;
+package org.glacierclient.operations.cache.model;
 
 public class InProgressUpload {
 

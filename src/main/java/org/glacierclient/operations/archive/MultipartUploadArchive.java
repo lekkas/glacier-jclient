@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.operations.archive;
+package org.glacierclient.operations.archive;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -14,9 +14,9 @@ import java.util.List;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.operations.GlacierOperation;
-import org.glacialbackup.operations.cache.model.InProgressUpload;
-import org.glacialbackup.operations.cache.model.LocalCache;
+import org.glacierclient.operations.GlacierOperation;
+import org.glacierclient.operations.cache.model.InProgressUpload;
+import org.glacierclient.operations.cache.model.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

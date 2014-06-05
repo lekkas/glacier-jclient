@@ -1,11 +1,12 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup;
+package org.glacierclient;
 
 import java.io.IOException;
-import org.glacialbackup.cli.CLIArguments;
-import org.glacialbackup.cli.CLICommands;
+
+import org.glacierclient.cli.CLIArguments;
+import org.glacierclient.cli.CLICommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

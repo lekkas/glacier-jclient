@@ -1,23 +1,23 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.cli;
+package org.glacierclient.cli;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.operations.GenericOperation;
-import org.glacialbackup.operations.archive.AbortMultipartUploadArchive;
-import org.glacialbackup.operations.archive.MultipartUploadArchive;
-import org.glacialbackup.operations.cache.DisplayCache;
-import org.glacialbackup.operations.jobs.ListJobs;
-import org.glacialbackup.operations.vault.CreateVault;
-import org.glacialbackup.operations.vault.DeleteVault;
-import org.glacialbackup.operations.vault.ListVaults;
-import org.glacialbackup.operations.vault.RequestVaultInventory;
-import org.glacialbackup.operations.vault.RequestVaultMetadata;
+import org.glacierclient.operations.GenericOperation;
+import org.glacierclient.operations.archive.AbortMultipartUploadArchive;
+import org.glacierclient.operations.archive.MultipartUploadArchive;
+import org.glacierclient.operations.cache.DisplayCache;
+import org.glacierclient.operations.jobs.ListJobs;
+import org.glacierclient.operations.vault.CreateVault;
+import org.glacierclient.operations.vault.DeleteVault;
+import org.glacierclient.operations.vault.ListVaults;
+import org.glacierclient.operations.vault.RequestVaultInventory;
+import org.glacierclient.operations.vault.RequestVaultMetadata;
 
 public class CLICommands {
 

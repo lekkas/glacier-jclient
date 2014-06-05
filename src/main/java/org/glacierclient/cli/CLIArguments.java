@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.cli;
+package org.glacierclient.cli;
 
 import java.util.ArrayList;
 import java.util.Arrays;
