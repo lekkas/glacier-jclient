@@ -5,8 +5,8 @@ package org.glacialbackup.operations.cache;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.cache.model.LocalCache;
 import org.glacialbackup.operations.GenericOperation;
+import org.glacialbackup.operations.cache.model.LocalCache;
 
 public class DisplayCache extends GenericOperation {
 

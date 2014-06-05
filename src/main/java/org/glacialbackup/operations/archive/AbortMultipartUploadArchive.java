@@ -5,8 +5,8 @@ package org.glacialbackup.operations.archive;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.cache.model.LocalCache;
 import org.glacialbackup.operations.GlacierOperation;
+import org.glacialbackup.operations.cache.model.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

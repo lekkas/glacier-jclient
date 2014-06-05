@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.cache.model;
+package org.glacialbackup.operations.cache.model;
 
 import java.util.List;
 

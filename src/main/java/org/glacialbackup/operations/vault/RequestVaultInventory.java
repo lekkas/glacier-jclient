@@ -9,8 +9,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.glacialbackup.cache.model.LocalCache;
 import org.glacialbackup.operations.GlacierOperation;
+import org.glacialbackup.operations.cache.model.LocalCache;
 import org.glacialbackup.operations.jobs.InitiateJob;
 import org.glacialbackup.operations.jobs.JobOutput;
 import org.glacialbackup.operations.jobs.ListJobs;

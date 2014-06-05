@@ -3,8 +3,8 @@
  */
 package org.glacialbackup.operations.vault;
 
-import org.glacialbackup.cache.model.LocalCache;
 import org.glacialbackup.operations.GlacierOperation;
+import org.glacialbackup.operations.cache.model.LocalCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
