@@ -37,7 +37,7 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
     client.setEndpoint(endpoint);
 
     try {
-      abortOperation(client, vaultName, uploadId);
+      abortUpload(vaultName, uploadId);
 
       /*
        * Remove entry from the cache
@@ -65,8 +65,8 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
    * @param vaultName
    * @param uploadId
    */
-  public void abortOperation(AmazonGlacierClient client, String vaultName, String uploadId) {
-
+  public void abortUpload(String vaultName, String uploadId) {
+    AmazonGlacierClient client = getAWSClient();
     AbortMultipartUploadRequest abortMultipartUploadRequest =
         new AbortMultipartUploadRequest().withVaultName(vaultName).withUploadId(uploadId);
 

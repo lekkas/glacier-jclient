@@ -32,8 +32,6 @@ public class CLIArguments {
     @Override
     public boolean contains(Object val) {
       if (values_.isEmpty()) {
-        // If values is empty, we don't have type information, so
-        // just return false.
         return false;
       }
       String first = values_.iterator().next();
@@ -87,7 +85,7 @@ public class CLIArguments {
       return TextHelper.concat(values_, 0, ",", "[", "]");
     }
   }
-  
+
   /*
    * List of AWS endpoint regions
    */
@@ -106,7 +104,7 @@ public class CLIArguments {
     "Succeeded",
     "Failed",
   };
-  
+
   public static ArgumentParser createArgsParser() {
 
     ArgumentParser parser = ArgumentParsers.newArgumentParser("GlacierBackup")
@@ -121,11 +119,11 @@ public class CLIArguments {
     Subparser vault = commands.addParser("vault").aliases("v").help("Vault operations");
     MutuallyExclusiveGroup vaultOptions = 
         vault.addMutuallyExclusiveGroup("Vault operation options").required(true);
-    
+
     vault.addArgument("--credentials")
         .help("Location of AWS credentials")
         .metavar("<file>");
-    
+
     vault.addArgument("-w", "--wait")
         .help("Wait until inventory retrieval operation has been completed (can take ~4 hrs if " +
         		"no jobs have already been submitted)")
@@ -136,19 +134,19 @@ public class CLIArguments {
         .choices(new CaseInsensitiveStringChoice(Endpoints))
         .metavar("<region>")
         .required(true);
-    
+
     vaultOptions.addArgument("-l", "--list")
         .help("List vaults")
         .action(Arguments.storeTrue());
-    
+
     vaultOptions.addArgument("-i", "--inventory")
         .help("Retrieve vault inventory")
         .metavar("<name>");
-    
+
     vaultOptions.addArgument("-m", "--meta")
         .help("Retrieve vault metadata")
         .metavar("<name>");
-    
+
     vaultOptions.addArgument("--delete")
         .help("Delete vault")
         .metavar("<name>");
@@ -156,8 +154,6 @@ public class CLIArguments {
     vaultOptions.addArgument("-c", "--create")
         .help("Create vault")
         .metavar("<name>");
-    
-    // vaultOptions.addArgument("vault-name").metavar("<vault name>").nargs(1);
     
     Subparser archive = commands.addParser("archive").aliases("a").help("Archive operations");
     MutuallyExclusiveGroup archiveOptions = 
@@ -177,28 +173,28 @@ public class CLIArguments {
     archive.addArgument("--credentials")
       .help("Location of AWS credentials")
       .metavar("<file>");
-    
+
     archive.addArgument("--description")
     .help("Description of archive (default: File name)")
     .metavar("<description>");
-    
+
     archiveOptions.addArgument("--upload")
         .help("Upload archive")
         .metavar("<file>");
-    
+
     archiveOptions.addArgument("--abort")
       .help("Abort archive upload operation")
       .metavar("<uploadId>");
 
     Subparser jobs = commands.addParser("job").aliases("j").help("Job operations");
     ArgumentGroup jobOptions = jobs.addArgumentGroup("Job operations");
-    
+
     jobs.addArgument("-e","--endpoint")
         .help("Set endpoint "+Arrays.asList(Endpoints).toString())
         .choices(new CaseInsensitiveStringChoice(Endpoints))
         .metavar("<region>")
         .required(true);
-    
+
     jobs.addArgument("-v","--vault")
         .help("Vault name for job operations")
         .metavar("<name>")
@@ -207,18 +203,18 @@ public class CLIArguments {
     jobs.addArgument("--credentials")
         .help("Location of AWS credentials")
         .metavar("<file>");
-    
+
     jobOptions.addArgument("-l", "--list")
         .help("List jobs "+Arrays.asList(Job_List_Options).toString())
         .choices(new CaseSensitiveStringChoice(Job_List_Options))
         .metavar("<selection>");
-    
+
     @SuppressWarnings("unused")
     Subparser cache = commands.addParser("cache")
         .aliases("c")
         .help("Display cache")
         .defaultHelp(false);
-    
+
     return parser;
   }
 }

@@ -159,6 +159,29 @@ public class LocalCache {
       }
     }
   }
+  
+  /*
+   * Removes archive from vault
+   */
+  public void deleteArchiveInfo(String vaultName, String archiveId) {
+    Iterator<VaultInfo> it = getVaults().iterator();
+    while(it.hasNext()) {
+      VaultInfo v = it.next();
+      if(v.getVaultName().equals(vaultName)) {
+        List<ArchiveInfo> archiveList = v.getVaultInventory().getArchiveList();
+        Iterator<ArchiveInfo> archIt = archiveList.iterator();
+        while(archIt.hasNext()) {
+          ArchiveInfo a = archIt.next();
+          if(a.getArchiveId().equals(archiveId)) {
+            archIt.remove();
+            saveCache();
+            log.debug("Removed archive "+archiveId+" from cache.");
+            break;
+          }
+        }
+      }
+    }
+  }
 
   /*
    * Cache vault inventory
@@ -175,7 +198,6 @@ public class LocalCache {
         return;
       }
     }
-    log.debug("Could not find vault "+vaultInventory.getVaultARN()+" in cache.");
   }
   
   /*
@@ -184,7 +206,6 @@ public class LocalCache {
   private void saveCache() {
     Gson gson = new Gson();
     String json = gson.toJson(this);
-    
     try {
       PrintWriter out = new PrintWriter(cacheFile, "UTF-8");
       out.write(json);
