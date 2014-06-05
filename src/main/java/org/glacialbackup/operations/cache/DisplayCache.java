@@ -8,6 +8,9 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.glacialbackup.operations.GenericOperation;
 import org.glacialbackup.operations.cache.model.LocalCache;
 
+/*
+ * Display cache information
+ */
 public class DisplayCache extends GenericOperation {
 
   public DisplayCache(Namespace argOpts) {

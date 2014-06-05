@@ -17,7 +17,7 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
 
 /**
- * Abort multipart upload operation.
+ * Abort multipart upload.
  */
 public class AbortMultipartUploadArchive extends GlacierOperation {
   
@@ -61,7 +61,6 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
   /**
    * Multipart upload abort.
    * 
-   * @param client
    * @param vaultName
    * @param uploadId
    */

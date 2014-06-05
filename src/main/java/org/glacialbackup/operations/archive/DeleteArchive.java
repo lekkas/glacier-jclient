@@ -16,7 +16,7 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DeleteArchiveRequest;
 
 /**
- * TODO: Delete archive glacier operation.
+ * Delete archive.
  */
 public class DeleteArchive extends GlacierOperation {
 
@@ -52,6 +52,12 @@ public class DeleteArchive extends GlacierOperation {
         argOpts.getString("delete") != null;
   }
 
+  /**
+   * Delete archive from vault.
+   * 
+   * @param vaultName
+   * @param archiveId
+   */
   public void deleteArchive(String vaultName, String archiveId) {
     AmazonGlacierClient client = getAWSClient();
     DeleteArchiveRequest deleteRequest = new DeleteArchiveRequest()

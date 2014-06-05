@@ -40,11 +40,11 @@ import com.amazonaws.util.BinaryUtils;
 import com.google.gson.Gson;
 
 /**
- * Multipart upload operation.
+ * Multipart upload.
  * 
  * All archives are uploaded using the multipart API regardless of their size.
  * 
- * TODO: Check 10.000 upload part limit from the API
+ * TODO: Check 10.000 parts upload limit.
  */
 public class MultipartUploadArchive extends GlacierOperation {
   
