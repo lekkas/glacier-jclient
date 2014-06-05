@@ -1,10 +1,13 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.jobs;
+package org.glacialbackup.operations.jobs;
 
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.glacialbackup.aws.GlacierOperation;
+
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.InitiateJobRequest;
@@ -17,6 +20,8 @@ import com.amazonaws.services.glacier.model.JobParameters;
  *  
  */
 public class InitiateJob extends GlacierOperation {
+  
+  public static Logger log = LoggerFactory.getLogger(InitiateJob.class);
 
   public static enum InitJobType {
     INVENTORY_RETRIEVAL {
@@ -41,9 +46,9 @@ public class InitiateJob extends GlacierOperation {
     return false;
   }
   
-  public static InitiateJobResult initiateJob(AmazonGlacierClient client, String vaultName, 
-      InitJobType jobType) {
+  public InitiateJobResult initiateJob(String vaultName, InitJobType jobType) {
     
+    AmazonGlacierClient client = getAWSClient();
     InitiateJobRequest inventoryJobRequest = 
         new InitiateJobRequest()
           .withVaultName(vaultName)

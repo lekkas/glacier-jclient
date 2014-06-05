@@ -1,18 +1,17 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.vault;
+package org.glacialbackup.operations.vault;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DescribeVaultRequest;
 import com.amazonaws.services.glacier.model.DescribeVaultResult;
@@ -31,18 +30,12 @@ public class RequestVaultMetadata extends GlacierOperation {
   public void exec() {
     try {
       String vaultName = argOpts.getString("meta");
-      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-      String endpoint = getEndpoint(argOpts.getString("endpoint"));
-      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-      client.setEndpoint(endpoint);
-
-      DescribeVaultResult result = requestVaultMetadata(client, vaultName);
+      DescribeVaultResult result = requestVaultMetadata(vaultName);   
       
       log.debug("Vault metadata for '"+vaultName+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
       String json = gson.toJson(result);
       LocalCache.loadCache().addVaultInfo(json);
-      
       System.out.println(json);
     } catch(AmazonServiceException ex) {
       log.error("AmazonServiceException: "+ex.getMessage());
@@ -62,16 +55,12 @@ public class RequestVaultMetadata extends GlacierOperation {
    * you add or remove an archive from a vault, and then immediately send a Describe Vault request, 
    * the response might not reflect the changes.
    * 
-   * @param credentials
-   * @param endpoint
    * @param vaultName
    */
-  public static DescribeVaultResult requestVaultMetadata(AmazonGlacierClient client, 
-      String vaultName) {
-
+  public DescribeVaultResult requestVaultMetadata(String vaultName) {
+    AmazonGlacierClient client = getAWSClient();
     DescribeVaultRequest request = new DescribeVaultRequest().withVaultName(vaultName);
     DescribeVaultResult result = client.describeVault(request);
-    
     return result;
   }
 

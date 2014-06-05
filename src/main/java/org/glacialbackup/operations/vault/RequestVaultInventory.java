@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.vault;
+package org.glacialbackup.operations.vault;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -9,15 +9,17 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
-import org.glacialbackup.aws.jobs.GetJobOutput;
-import org.glacialbackup.aws.jobs.InitiateJob;
-import org.glacialbackup.aws.jobs.InitiateJob.InitJobType;
-import org.glacialbackup.aws.jobs.ListJobs;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
+import org.glacialbackup.operations.jobs.InitiateJob;
+import org.glacialbackup.operations.jobs.JobOutput;
+import org.glacialbackup.operations.jobs.ListJobs;
+import org.glacialbackup.operations.jobs.InitiateJob.InitJobType;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.Interval;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -38,6 +40,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
  * TODO: Inform user of ETA from the creationDate field of the oldest submitted job
  */
 public class RequestVaultInventory extends GlacierOperation {
+  
+  public static Logger log = LoggerFactory.getLogger(RequestVaultInventory.class);
 
   public RequestVaultInventory(Namespace argOpts) {
     super(argOpts);
@@ -51,7 +55,7 @@ public class RequestVaultInventory extends GlacierOperation {
     AmazonGlacierClient client = new AmazonGlacierClient(credentials);
     client.setEndpoint(endpoint);
     
-    requestVaultInventory(client, vaultName);
+    requestVaultInventory(vaultName);
   }
 
   @Override
@@ -60,13 +64,13 @@ public class RequestVaultInventory extends GlacierOperation {
             argOpts.getString("inventory") != null;
   }
 
-  public static void requestVaultInventory(AmazonGlacierClient client, String vaultName) {
-
+  public void requestVaultInventory(String vaultName) {
     try {
       /* 
        * Request list of all inventory request jobs for the specific vault 
        */
-      ListJobsResult listJobsResult = ListJobs.listJobs(client, vaultName, "All");
+      ListJobs listJobsOperation = new ListJobs(argOpts);
+      ListJobsResult listJobsResult = listJobsOperation.listJobs(vaultName, "All");
 
       List<GlacierJobDescription> jobList = listJobsResult.getJobList();
       List<GlacierJobDescription> succeededJobs = new ArrayList<GlacierJobDescription>();
@@ -94,7 +98,8 @@ public class RequestVaultInventory extends GlacierOperation {
        * TODO: Override this with a --force flag
        */
       if(inProgressJobs.size() == 0 && succeededJobs.size() == 0) {
-        InitiateJobResult initJobResult = InitiateJob.initiateJob(client, vaultName, 
+        InitiateJob initJob = new InitiateJob(argOpts);
+        InitiateJobResult initJobResult = initJob.initiateJob(vaultName, 
             InitJobType.INVENTORY_RETRIEVAL);
         
         log.info("Created "+InitJobType.INVENTORY_RETRIEVAL+" job for vault '"+vaultName+"' " +
@@ -147,10 +152,11 @@ public class RequestVaultInventory extends GlacierOperation {
         
         GlacierJobDescription succeededJob = succeededJobs.remove(0);
         log.debug("Retrieving inventory for completed job: "+succeededJob.toString());
-        GetJobOutputResult jobOutputResult = GetJobOutput.getJobOutput(client, vaultName, 
+        JobOutput jobOut = new JobOutput(argOpts);
+        GetJobOutputResult jobOutputResult = jobOut.getJobOutput(vaultName, 
             succeededJob.getJobId(), null);
         
-        String jsonInventory = GetJobOutput.getJSONInventoryFromJobResult(jobOutputResult);
+        String jsonInventory = jobOut.getJSONInventoryFromJobResult(jobOutputResult);
         log.debug("Retrieved vault inventory: "+jsonInventory);
         
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -166,10 +172,10 @@ public class RequestVaultInventory extends GlacierOperation {
          */
         for(GlacierJobDescription oldSucceededJob : succeededJobs) {
           log.debug("Retrieving inventory for older job: +"+oldSucceededJob.toString());
-          GetJobOutputResult oldJobOutputResult = GetJobOutput.getJobOutput(client, vaultName, 
+          GetJobOutputResult oldJobOutputResult = jobOut.getJobOutput(vaultName, 
               oldSucceededJob.getJobId(), null);
           
-          String oldJsonInventory = GetJobOutput.getJSONInventoryFromJobResult(oldJobOutputResult);
+          String oldJsonInventory = jobOut.getJSONInventoryFromJobResult(oldJobOutputResult);
           log.debug("Retrieved vault inventory from older job: "+oldJsonInventory);
         }
       } 
@@ -185,7 +191,7 @@ public class RequestVaultInventory extends GlacierOperation {
     }
   }
   
-  private static void sortJobListByCompletionDateDesc(List<GlacierJobDescription> list) {
+  private void sortJobListByCompletionDateDesc(List<GlacierJobDescription> list) {
       Collections.sort(list, new Comparator<GlacierJobDescription>() {
 
         @Override
@@ -198,8 +204,8 @@ public class RequestVaultInventory extends GlacierOperation {
       });
       Collections.reverse(list);
   }
-  
-  private static void sortJobListByCreationDateAsc(List<GlacierJobDescription> list) {
+
+  private void sortJobListByCreationDateAsc(List<GlacierJobDescription> list) {
     Collections.sort(list, new Comparator<GlacierJobDescription>() {
 
       @Override

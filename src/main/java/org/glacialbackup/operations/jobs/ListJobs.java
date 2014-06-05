@@ -1,21 +1,34 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.jobs;
+package org.glacialbackup.operations.jobs;
 
 import net.sourceforge.argparse4j.inf.Namespace;
-import org.glacialbackup.aws.GlacierOperation;
+
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.ListJobsRequest;
 import com.amazonaws.services.glacier.model.ListJobsResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * 
+ * List vault jobs.
+ * 
+ * This operation lists in-progress and recently failed/succeeded inventory/archive
+ * retrieval vault jobs.
+ *
+ */
 public class ListJobs extends GlacierOperation {
 
+  public static Logger log = LoggerFactory.getLogger(ListJobs.class);
+  
   public ListJobs(Namespace argOpts) {
     super(argOpts);
   }
@@ -26,12 +39,7 @@ public class ListJobs extends GlacierOperation {
     try {
       String vaultName = argOpts.getString("vault");
       String listOption = argOpts.getString("list");
-      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-      String endpoint = getEndpoint(argOpts.getString("endpoint"));
-      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-      client.setEndpoint(endpoint);
-
-      ListJobsResult listJobsResult = listJobs(client, vaultName, listOption);
+      ListJobsResult listJobsResult = listJobs(vaultName, listOption);
       
       log.debug("listJobs() response for '"+vaultName+"' ("+listOption+"): "+
           listJobsResult.toString());
@@ -75,19 +83,16 @@ public class ListJobs extends GlacierOperation {
    * allows you to specify that only jobs that match a specified status are returned. The completed 
    * parameter allows you to specify that only jobs in specific completion state are returned.
    * 
-   * @param credentials
-   * @param endpoint
    * @param vaultName
+   * @param listOption
    */
-  public static ListJobsResult listJobs(AmazonGlacierClient client, String vaultName,
-      String listOption) {
-
+  public ListJobsResult listJobs(String vaultName, String listOption) {
+    AmazonGlacierClient client = getAWSClient();
     String statuscode = listOption.equals("All")?null:listOption;
     ListJobsRequest listJobsRequest = new ListJobsRequest()
         .withVaultName(vaultName)
         .withStatuscode(statuscode);
     ListJobsResult listJobsResult = client.listJobs(listJobsRequest);
-    
     return listJobsResult;
   }
 }

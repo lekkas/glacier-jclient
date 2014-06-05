@@ -1,16 +1,17 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.vault;
+package org.glacialbackup.operations.vault;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.CreateVaultRequest;
 import com.amazonaws.services.glacier.model.CreateVaultResult;
@@ -18,8 +19,13 @@ import com.amazonaws.services.glacier.model.DescribeVaultResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+/**
+ * Create vault operation.
+ */
 public class CreateVault extends GlacierOperation {
 
+  private final Logger log = LoggerFactory.getLogger(CreateVault.class);
+  
   public CreateVault(Namespace argOpts) {
     super(argOpts);
   }
@@ -28,12 +34,7 @@ public class CreateVault extends GlacierOperation {
   public void exec() {
     try {
       String vaultName = argOpts.getString("create");
-      String endpoint = getEndpoint(argOpts.getString("endpoint"));
-      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-      client.setEndpoint(endpoint);
-
-      CreateVaultResult result = createVault(client, vaultName);
+      CreateVaultResult result = createVault(vaultName);
       
       log.debug("Create vault operation response: "+result.toString());
       log.info("Vault created successfully: " + result.getLocation());
@@ -41,7 +42,8 @@ public class CreateVault extends GlacierOperation {
       /*
        * Request metadata and add it to the cache
        */
-      DescribeVaultResult metaResult = RequestVaultMetadata.requestVaultMetadata(client, vaultName);
+      RequestVaultMetadata metaOperation = new RequestVaultMetadata(argOpts);
+      DescribeVaultResult metaResult = metaOperation.requestVaultMetadata(vaultName);
     
       log.debug("Vault metadata for '"+argOpts.getString("create")+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -68,11 +70,10 @@ public class CreateVault extends GlacierOperation {
    * multiple times and it has no further effect after the first time Amazon Glacier creates 
    * the specified vault.
    * 
-   * @param credentials
-   * @param endpoint
    * @param vaultName
    */
-  public static CreateVaultResult createVault(AmazonGlacierClient client, String vaultName) {
+  public CreateVaultResult createVault(String vaultName) {
+    AmazonGlacierClient client = getAWSClient();
     CreateVaultRequest request = new CreateVaultRequest().withVaultName(vaultName);
     CreateVaultResult result = client.createVault(request);
     return result;

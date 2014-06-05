@@ -1,12 +1,13 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.vault;
+package org.glacialbackup.operations.vault;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
@@ -20,6 +21,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 
 public class ListVaults extends GlacierOperation {
 
+  private final Logger log = LoggerFactory.getLogger(ListVaults.class);
+  
   public ListVaults(Namespace argOpts) {
     super(argOpts);
   }
@@ -27,9 +30,7 @@ public class ListVaults extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      ListVaultsResult listVaultsResult = requestVaultList(
-          loadCredentials(argOpts.getString("credentials")),
-          getEndpoint(argOpts.getString("endpoint")));
+      ListVaultsResult listVaultsResult = requestVaultList();
       
       log.debug("requestVaultList() response: "+listVaultsResult.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -55,17 +56,11 @@ public class ListVaults extends GlacierOperation {
   /**
    * This operation requests the list of all vaults owned by the calling user’s account
    * TODO: Add marker support for lists of over 1000 items.
-   * 
-   * @param credentials
-   * @param endpoint
    */
-  public static ListVaultsResult requestVaultList(AWSCredentials credentials, String endpoint) {
-    
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-  
-      ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
-      ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
-      return listVaultsResult;
+  public ListVaultsResult requestVaultList() {
+    AmazonGlacierClient client = getAWSClient();
+    ListVaultsRequest listVaultsRequest = new ListVaultsRequest();
+    ListVaultsResult listVaultsResult = client.listVaults(listVaultsRequest);
+    return listVaultsResult;
   }
 }

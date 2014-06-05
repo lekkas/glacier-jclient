@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.archive;
+package org.glacialbackup.operations.archive;
 
 import java.util.List;
 

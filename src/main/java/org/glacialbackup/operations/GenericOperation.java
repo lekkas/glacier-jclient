@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.aws;
+package org.glacialbackup.operations;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 

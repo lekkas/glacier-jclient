@@ -1,12 +1,14 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.aws.archive;
+package org.glacialbackup.operations.archive;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -15,9 +17,11 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
 
 /**
- * Abort multipart upload operation wrapper.
+ * Abort multipart upload operation.
  */
 public class AbortMultipartUploadArchive extends GlacierOperation {
+  
+  private final Logger log = LoggerFactory.getLogger(AbortMultipartUploadArchive.class);
 
   public AbortMultipartUploadArchive(Namespace argOpts) {
     super(argOpts);
@@ -61,7 +65,7 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
    * @param vaultName
    * @param uploadId
    */
-  public static void abortOperation(AmazonGlacierClient client, String vaultName, String uploadId) {
+  public void abortOperation(AmazonGlacierClient client, String vaultName, String uploadId) {
 
     AbortMultipartUploadRequest abortMultipartUploadRequest =
         new AbortMultipartUploadRequest().withVaultName(vaultName).withUploadId(uploadId);

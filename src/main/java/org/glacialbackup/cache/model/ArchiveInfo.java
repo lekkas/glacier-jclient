@@ -1,12 +1,12 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.cache;
+package org.glacialbackup.cache.model;
 
 public class ArchiveInfo {
   
   private String ArchiveId;
-  private String ArchiveDescription; // not required when uploading an archive
+  private String ArchiveDescription;
   private String CreationDate;
   private String Size;
   private String SHA256TreeHash;

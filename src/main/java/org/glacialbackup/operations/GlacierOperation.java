@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.aws;
+package org.glacialbackup.operations;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,12 +13,15 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.PropertiesCredentials;
+import com.amazonaws.services.glacier.AmazonGlacierClient;
 
 /**
  * AWS Glacier operation.
  * This class
  */
 public abstract class GlacierOperation extends GenericOperation {
+  
+  private final Logger log = LoggerFactory.getLogger(GlacierOperation.class);
 
   /**
    * Default location of AWS credentials.
@@ -26,10 +29,15 @@ public abstract class GlacierOperation extends GenericOperation {
   private static final String DEFAULT_CREDENTIALS_PATH =
       System.getProperty("user.home") + "/.aws/aws.properties";
 
-  public static Logger log = LoggerFactory.getLogger(GlacierOperation.class);
-
+  
+  private AmazonGlacierClient client;
+  
   public GlacierOperation(Namespace argOpts) {
     super(argOpts);
+    AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+    String endpoint = getEndpoint(argOpts.getString("endpoint"));
+    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
+    client.setEndpoint(endpoint);
   }
 
   /**
@@ -38,7 +46,7 @@ public abstract class GlacierOperation extends GenericOperation {
    * @param location File path. Pass null to load credentials from DEFAULT_CREDENTIALS_PATH
    * @return {@link AWSCredentials} object
    */
-  public static AWSCredentials loadCredentials(String location) {
+  public AWSCredentials loadCredentials(String location) {
     File credentialsFile;
     AWSCredentials credentials = null;
 
@@ -68,5 +76,9 @@ public abstract class GlacierOperation extends GenericOperation {
    */
   public static String getEndpoint(String region) {
     return "https://glacier."+region.toLowerCase()+".amazonaws.com";
+  }
+  
+  public AmazonGlacierClient getAWSClient() {
+    return client;
   }
 }

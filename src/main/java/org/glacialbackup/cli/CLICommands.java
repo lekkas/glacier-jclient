@@ -8,16 +8,16 @@ import java.util.List;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GenericOperation;
-import org.glacialbackup.aws.archive.AbortMultipartUploadArchive;
-import org.glacialbackup.aws.archive.MultipartUploadArchive;
-import org.glacialbackup.aws.cache.DisplayCache;
-import org.glacialbackup.aws.jobs.ListJobs;
-import org.glacialbackup.aws.vault.CreateVault;
-import org.glacialbackup.aws.vault.DeleteVault;
-import org.glacialbackup.aws.vault.RequestVaultInventory;
-import org.glacialbackup.aws.vault.RequestVaultMetadata;
-import org.glacialbackup.aws.vault.ListVaults;
+import org.glacialbackup.operations.GenericOperation;
+import org.glacialbackup.operations.archive.AbortMultipartUploadArchive;
+import org.glacialbackup.operations.archive.MultipartUploadArchive;
+import org.glacialbackup.operations.cache.DisplayCache;
+import org.glacialbackup.operations.jobs.ListJobs;
+import org.glacialbackup.operations.vault.CreateVault;
+import org.glacialbackup.operations.vault.DeleteVault;
+import org.glacialbackup.operations.vault.ListVaults;
+import org.glacialbackup.operations.vault.RequestVaultInventory;
+import org.glacialbackup.operations.vault.RequestVaultMetadata;
 
 public class CLICommands {
 

@@ -213,6 +213,7 @@ public class CLIArguments {
         .choices(new CaseSensitiveStringChoice(Job_List_Options))
         .metavar("<selection>");
     
+    @SuppressWarnings("unused")
     Subparser cache = commands.addParser("cache")
         .aliases("c")
         .help("Display cache")

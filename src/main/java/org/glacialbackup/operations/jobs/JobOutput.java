@@ -1,7 +1,7 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.jobs;
+package org.glacialbackup.operations.jobs;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,14 +9,19 @@ import java.io.InputStreamReader;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.operations.GlacierOperation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.GetJobOutputRequest;
 import com.amazonaws.services.glacier.model.GetJobOutputResult;
 
-public class GetJobOutput extends GlacierOperation {
+public class JobOutput extends GlacierOperation {
 
-  public GetJobOutput(Namespace argOpts) {
+  public static Logger log = LoggerFactory.getLogger(JobOutput.class);
+  
+  public JobOutput(Namespace argOpts) {
     super(argOpts);
   }
 
@@ -33,17 +38,14 @@ public class GetJobOutput extends GlacierOperation {
   /**
    * Get result of submitted job
    * 
-   * @param credentials AWS credentials
-   * @param endpoint AWS Glacier endpoint 
-   * @param vaultName The target vault
+   * @param vaultName
    * @param jobId Job ID
    * @param range Byte range for archive retrieval. MUST be null when requesting inventory
    * archives.
    * @return
    */
-  public static GetJobOutputResult getJobOutput(AmazonGlacierClient client, String vaultName, 
-      String jobId, String range) {
-    
+  public GetJobOutputResult getJobOutput(String vaultName, String jobId, String range) {
+    AmazonGlacierClient client = getAWSClient();
     GetJobOutputRequest jobOutputRequest = new GetJobOutputRequest()
         .withVaultName(vaultName)
         .withJobId(jobId)
@@ -53,7 +55,7 @@ public class GetJobOutput extends GlacierOperation {
     return jobOutputResult;
   }
   
-  public static String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult) 
+  public String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult) 
       throws IOException {
     
     BufferedReader in = new BufferedReader(new InputStreamReader(jobOutputResult.getBody()));

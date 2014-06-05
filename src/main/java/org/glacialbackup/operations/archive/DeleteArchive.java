@@ -1,14 +1,14 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com)
  */
-package org.glacialbackup.aws.archive;
+package org.glacialbackup.operations.archive;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GlacierOperation;
+import org.glacialbackup.operations.GlacierOperation;
 
 /**
- * TODO: Delete archive glacier operation wrapper.
+ * TODO: Delete archive glacier operation.
  */
 public class DeleteArchive extends GlacierOperation {
 

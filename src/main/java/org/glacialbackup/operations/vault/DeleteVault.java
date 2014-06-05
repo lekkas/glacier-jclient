@@ -1,24 +1,27 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.vault;
+package org.glacialbackup.operations.vault;
 
 import net.sourceforge.argparse4j.inf.Namespace;
 
-import org.glacialbackup.aws.GlacierOperation;
-import org.glacialbackup.aws.cache.LocalCache;
+import org.glacialbackup.cache.model.LocalCache;
+import org.glacialbackup.operations.GlacierOperation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DeleteVaultRequest;
 
+/**
+ * Delete vault operation.
+ *
+ */
 public class DeleteVault extends GlacierOperation {
 
-  public static Logger log = LoggerFactory.getLogger(DeleteVault.class);
+  private final Logger log = LoggerFactory.getLogger(DeleteVault.class);
   
   public DeleteVault(Namespace argOpts) {
     super(argOpts);
@@ -28,12 +31,7 @@ public class DeleteVault extends GlacierOperation {
   public void exec() {
     try {
       String vaultName = argOpts.getString("delete");
-      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-      String endpoint = getEndpoint(argOpts.getString("endpoint"));
-      AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-      client.setEndpoint(endpoint);
-      
-      deleteVault(client, vaultName);
+      deleteVault(vaultName);
       
       log.info("Deleted vault '" + vaultName+"'");
       
@@ -64,11 +62,10 @@ public class DeleteVault extends GlacierOperation {
    * since the last inventory. If either of these conditions is not satisfied, the vault deletion 
    * fails (that is, the vault is not removed) and Amazon Glacier returns an error.
    * 
-   * @param credentials
-   * @param endpoint
    * @param vaultName
    */
-  public static void deleteVault(AmazonGlacierClient client, String vaultName) {
+  public void deleteVault(String vaultName) {
+    AmazonGlacierClient client = getAWSClient();
     DeleteVaultRequest request = new DeleteVaultRequest().withVaultName(vaultName);
     client.deleteVault(request);
   }

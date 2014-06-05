@@ -1,7 +1,8 @@
 /**
  * @author Kostas Lekkas (kwstasl@gmail.com) 
  */
-package org.glacialbackup.aws.cache;
+package org.glacialbackup.cache.model;
+
 
 /*
  * We needed a local cache to support resume for archive uploads. So, why not doing a little
