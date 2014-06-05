@@ -17,10 +17,9 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 
 /**
  * AWS Glacier operation.
- * This class
  */
 public abstract class GlacierOperation extends GenericOperation {
-  
+
   private final Logger log = LoggerFactory.getLogger(GlacierOperation.class);
 
   /**
@@ -29,9 +28,9 @@ public abstract class GlacierOperation extends GenericOperation {
   private static final String DEFAULT_CREDENTIALS_PATH =
       System.getProperty("user.home") + "/.aws/aws.properties";
 
-  
+
   private AmazonGlacierClient client;
-  
+
   public GlacierOperation(Namespace argOpts) {
     super(argOpts);
     AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
@@ -77,7 +76,7 @@ public abstract class GlacierOperation extends GenericOperation {
   public static String getEndpoint(String region) {
     return "https://glacier."+region.toLowerCase()+".amazonaws.com";
   }
-  
+
   public AmazonGlacierClient getAWSClient() {
     return client;
   }

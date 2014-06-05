@@ -50,7 +50,7 @@ public class MultipartUploadArchive extends GlacierOperation {
 
   private final Logger log = LoggerFactory.getLogger(MultipartUploadArchive.class);
 
-  public static long defaultPartSize = 1024L*1024L; // 1 MB.
+  public static long defaultPartSize = 1024L * 1024L; // 1 MB.
 
   public MultipartUploadArchive(Namespace argOpts) {
     super(argOpts);
@@ -73,19 +73,16 @@ public class MultipartUploadArchive extends GlacierOperation {
       }
       File file = new File(archiveFilePath);
       RandomAccessFile in = new RandomAccessFile(file, "r");
-
       AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
       AmazonGlacierClient client = new AmazonGlacierClient(credentials);
       client.setEndpoint(endpoint);
-
       String uploadId = LocalCache.loadCache().getInProgressUpload(vaultName, archiveFilePath);
 
       /*
        * New upload operation
        */
       if (uploadId == null) {
-        uploadId =
-            initiateMultipartUpload(vaultName, description, defaultPartSize);
+        uploadId = initiateMultipartUpload(vaultName, description, defaultPartSize);
 
         /*
          * Cache the new multipart upload
@@ -94,8 +91,7 @@ public class MultipartUploadArchive extends GlacierOperation {
             new InProgressUpload(archiveFilePath, uploadId, vaultName);
         LocalCache.loadCache().addInProgressUpload(inProgressUpload);
 
-        String archiveChecksum =
-            uploadParts(vaultName, 0, defaultPartSize, null, uploadId, in);
+        String archiveChecksum = uploadParts(vaultName, 0, defaultPartSize, null, uploadId, in);
         completeMultipartUpload(vaultName, archiveChecksum, uploadId, in.length());
 
         /*
@@ -218,8 +214,8 @@ public class MultipartUploadArchive extends GlacierOperation {
               .toString(endContentRange));
 
       /*
-       * Retry to upload part when we face recoverable exceptions.
-       * TODO: Add more recover options here (e.g. network IOExceptions)
+       * Retry to upload part when we face recoverable exceptions. TODO: Add
+       * more recover options here (e.g. network IOExceptions)
        */
       boolean partUploaded = false;
       int tryCount = 1;
@@ -264,12 +260,11 @@ public class MultipartUploadArchive extends GlacierOperation {
    *          offset of first byte to read
    * @param partSize
    *          number of bytes to read from file
-   * @param buffer
-   *          byte[] buffer to store read bytes
    * @return byte[] read bytes array
    */
-  private byte[] readContentRangeFromFile(RandomAccessFile in, long contentRangeStart,
-      long partSize) throws IOException {
+  private byte[]
+      readContentRangeFromFile(RandomAccessFile in, long contentRangeStart, long partSize)
+          throws IOException {
     byte[] buf = new byte[(int) partSize];
 
     in.seek(contentRangeStart);
@@ -286,8 +281,8 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @param uploadId
    * @param fileSize
    */
-  public void completeMultipartUpload(String vaultName,
-      String checksum, String uploadId, long fileSize) {
+  public void completeMultipartUpload(String vaultName, String checksum, String uploadId,
+      long fileSize) {
     AmazonGlacierClient client = getAWSClient();
     CompleteMultipartUploadRequest compRequest =
         new CompleteMultipartUploadRequest().withVaultName(vaultName).withUploadId(uploadId)
@@ -298,17 +293,15 @@ public class MultipartUploadArchive extends GlacierOperation {
   }
 
   /**
-   * Try to resume existing multipart upload
+   * Resume existing multipart upload
    * 
    * @param vaultName
    * @param uploadId
-   * @param binaryChecksums
-   *          a list to store the checksums of the already uploaded parts
-   * @return
+   * @param {@link RandomAccessFile}
    * @throws IOException
    */
-  public void resumeMultipartUpload(String vaultName, String uploadId,
-      RandomAccessFile in) throws IOException {
+  public void resumeMultipartUpload(String vaultName, String uploadId, RandomAccessFile in)
+      throws IOException {
     MultipartUploadStatus multiPartUploadStatus = listParts(vaultName, uploadId);
     log.info("Resuming upload. uploadId: " + uploadId + ", partSize: "
         + multiPartUploadStatus.getPartSizeInBytes());
@@ -334,18 +327,17 @@ public class MultipartUploadArchive extends GlacierOperation {
     int listSize = multiPartUploadStatus.getUploadedParts().size();
     long nextPartStartContentRange = listSize * partSize;
 
-    String archiveChecksum = uploadParts(vaultName, nextPartStartContentRange, partSize,
-        binaryChecksums, uploadId, in);
+    String archiveChecksum =
+        uploadParts(vaultName, nextPartStartContentRange, partSize, binaryChecksums, uploadId, in);
     completeMultipartUpload(vaultName, archiveChecksum, uploadId, in.length());
   }
 
   /**
    * Retrieve list of uploaded parts for an in-progress multipart upload.
    * 
-   * @param client
    * @param vaultName
    * @param multipartUploadId
-   * @return
+   * @return {@link MultipartUploadStatus} object
    */
   public MultipartUploadStatus listParts(String vaultName, String uploadId) {
     AmazonGlacierClient client = getAWSClient();

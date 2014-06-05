@@ -6,8 +6,7 @@ package org.glacierjclient.operations;
 import net.sourceforge.argparse4j.inf.Namespace;
 
 /**
- * Generic operation. This class acts as a wrapper of the actual AWS Glacier operations.
- * 
+ * Generic operation.
  */
 public abstract class GenericOperation {
 
@@ -18,12 +17,13 @@ public abstract class GenericOperation {
   }
 
   /**
-   * Execute operation. This function
+   * Execute operation.
    */
   public abstract void exec();
 
   /**
-   * Check if the command line arguments <i>argOpts</i> are valid for the specific operation.
+   * Check if the command line arguments <i>argOpts</i> are valid for the
+   * specific operation.
    * 
    * @return true if the command line arguments are valid, false otherwise
    */
