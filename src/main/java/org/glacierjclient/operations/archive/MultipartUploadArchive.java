@@ -47,10 +47,10 @@ import com.google.gson.Gson;
  * TODO: Check 10.000 parts upload limit.
  */
 public class MultipartUploadArchive extends GlacierOperation {
-  
+
   private final Logger log = LoggerFactory.getLogger(MultipartUploadArchive.class);
 
-  public static String partSize = "1048576"; // 1 MB.
+  public static long defaultPartSize = 1024L*1024L; // 1 MB.
 
   public MultipartUploadArchive(Namespace argOpts) {
     super(argOpts);
@@ -85,7 +85,7 @@ public class MultipartUploadArchive extends GlacierOperation {
        */
       if (uploadId == null) {
         uploadId =
-            initiateMultipartUpload(vaultName, description, Long.parseLong(partSize));
+            initiateMultipartUpload(vaultName, description, defaultPartSize);
 
         /*
          * Cache the new multipart upload
@@ -95,20 +95,14 @@ public class MultipartUploadArchive extends GlacierOperation {
         LocalCache.loadCache().addInProgressUpload(inProgressUpload);
 
         String archiveChecksum =
-            uploadParts(vaultName, 0, Long.parseLong(partSize), null, uploadId, in);
+            uploadParts(vaultName, 0, defaultPartSize, null, uploadId, in);
         completeMultipartUpload(vaultName, archiveChecksum, uploadId, in.length());
 
         /*
          * Resuming upload operation
          */
       } else {
-        LinkedList<byte[]> binaryChecksums = new LinkedList<byte[]>();
-        long resumeStartContentRange =
-            resumeMultipartUpload(vaultName, uploadId, binaryChecksums);
-        String archiveChecksum =
-            uploadParts(vaultName, resumeStartContentRange, Long.parseLong(partSize),
-                binaryChecksums, uploadId, in);
-        completeMultipartUpload(vaultName, archiveChecksum, uploadId, in.length());
+        resumeMultipartUpload(vaultName, uploadId, in);
       }
 
       /*
@@ -166,9 +160,9 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @param contentRangeRFC2616
    * @return the checksum of the uploaded part, as returned by AWS
    */
-  public String uploadPart(String vaultName, String uploadId, byte[] partBytes, String checksum, 
+  public String uploadPart(String vaultName, String uploadId, byte[] partBytes, String checksum,
       String contentRangeRFC2616) {
-    
+
     AmazonGlacierClient client = getAWSClient();
     UploadMultipartPartRequest partRequest =
         new UploadMultipartPartRequest().withVaultName(vaultName).withChecksum(checksum).withRange(
@@ -199,7 +193,7 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @return checksum of the whole archive
    * @throws IOException
    */
-  public String uploadParts(String vaultName, long startContentRange, long partSize, 
+  public String uploadParts(String vaultName, long startContentRange, long partSize,
       List<byte[]> binaryChecksums, String uploadId, RandomAccessFile in) throws IOException {
     int numOfRetries = 5;
     int sleepMillis = 10000;
@@ -224,7 +218,7 @@ public class MultipartUploadArchive extends GlacierOperation {
               .toString(endContentRange));
 
       /*
-       * Retry to upload part when we face recoverable exceptions. 
+       * Retry to upload part when we face recoverable exceptions.
        * TODO: Add more recover options here (e.g. network IOExceptions)
        */
       boolean partUploaded = false;
@@ -310,14 +304,11 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @param uploadId
    * @param binaryChecksums
    *          a list to store the checksums of the already uploaded parts
-   * @return Offset of the first byte of the next archive part to upload. The
-   *         returned value will exceed the actual file size if all parts of the
-   *         archive have already been uploaded, so callers need to check the
-   *         result for out-of-bounds file reading.
+   * @return
    * @throws IOException
    */
-  public long resumeMultipartUpload(String vaultName, String uploadId, 
-      LinkedList<byte[]> binaryChecksums) throws IOException {
+  public void resumeMultipartUpload(String vaultName, String uploadId,
+      RandomAccessFile in) throws IOException {
     MultipartUploadStatus multiPartUploadStatus = listParts(vaultName, uploadId);
     log.info("Resuming upload. uploadId: " + uploadId + ", partSize: "
         + multiPartUploadStatus.getPartSizeInBytes());
@@ -328,6 +319,7 @@ public class MultipartUploadArchive extends GlacierOperation {
     /*
      * Retrieve binary checksums of uploaded parts
      */
+    LinkedList<byte[]> binaryChecksums = new LinkedList<byte[]>();
     for (PartListElement p : multiPartUploadStatus.getUploadedParts()) {
       String range[] = p.getRangeInBytes().split("-");
       if (!range[0].equals(Long.toString(start))) {
@@ -339,11 +331,12 @@ public class MultipartUploadArchive extends GlacierOperation {
       start = start + partSize;
     }
 
-    /*
-     * Find last uploaded part and resume from there.
-     */
     int listSize = multiPartUploadStatus.getUploadedParts().size();
-    return listSize * partSize;
+    long nextPartStartContentRange = listSize * partSize;
+
+    String archiveChecksum = uploadParts(vaultName, nextPartStartContentRange, partSize,
+        binaryChecksums, uploadId, in);
+    completeMultipartUpload(vaultName, archiveChecksum, uploadId, in.length());
   }
 
   /**

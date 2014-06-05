@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.cache.model;
 
@@ -26,20 +26,22 @@ import com.google.gson.GsonBuilder;
  */
 public class LocalCache {
 
-  private List<VaultInfo> vaults = new ArrayList<VaultInfo>();
-  private List<InProgressUpload> inProgressUploads = new ArrayList<InProgressUpload>();
-  
-  private transient static final File cacheFile = new File(System.getProperty("user.home") +
-        File.separator + ".glacialbackup" + File.separator + "cache");
-  
   public transient static Logger log = LoggerFactory.getLogger(LocalCache.class);
 
+  private List<VaultInfo> vaults = new ArrayList<VaultInfo>();
+  private List<InProgressUpload> inProgressUploads = new ArrayList<InProgressUpload>();
+
+  private transient static final File cacheFile = new File(System.getProperty("user.home") +
+      File.separator + ".glacialbackup" + File.separator + "cache");
+
+
+
   private LocalCache() {
-    
+
   }
 
   /**
-   * Add in progress multipart upload in the cache. 
+   * Add in progress multipart upload in the cache.
    * @param uploadInfo
    */
   public void addInProgressUpload(InProgressUpload inProgressUpload) {
@@ -54,9 +56,9 @@ public class LocalCache {
     getInProgressUploads().add(inProgressUpload);
     saveCache();
     log.debug("Added multipart job for archive "+inProgressUpload.getArchiveFilePath()+" with job " +
-    		"id "+inProgressUpload.getMultipartUploadId());
+        "id "+inProgressUpload.getMultipartUploadId());
   }
-  
+
   /**
    * Find upload Id
    * 
@@ -76,7 +78,7 @@ public class LocalCache {
     }
     return null;
   }
-  
+
   /*
    * Remove in progress upload from cache
    */
@@ -95,14 +97,14 @@ public class LocalCache {
     }
   }
   /**
-   * Adds a VaultInfo object in the cache. 
+   * Adds a VaultInfo object in the cache.
    * 
    * @param vaultInfoJson The JSON reply from the Describe Vault request
    */
   public void addVaultInfo(String vaultInfoJson) {
     Gson gson = new Gson();
     VaultInfo vaultInfo = gson.fromJson(vaultInfoJson, VaultInfo.class);
-    
+
     VaultInfo existingVault = null;
     Iterator<VaultInfo> it = getVaults().iterator();
     while(it.hasNext()) {
@@ -112,7 +114,7 @@ public class LocalCache {
         break;
       }
     }
-     
+
     if(existingVault == null ) {
       getVaults().add(vaultInfo);
       saveCache();
@@ -129,21 +131,21 @@ public class LocalCache {
       log.debug("Updated vault "+vaultInfo.getVaultName()+" in cache.");
     }
   }
-  
+
   /*
    * Add vault list to cache.
-   * TODO: Currently we are converting json to objects back-and-forth in order to insert each 
+   * TODO: Currently we are converting json to objects back-and-forth in order to insert each
    * VaultInfo object to the cache.
    */
   public void addVaultInfoList(String listVaultInfoJson) {
     Gson gson = new Gson();
     VaultInfo[] list = gson.fromJson(listVaultInfoJson, VaultInfo[].class);
-    
+
     for(int i = 0; i < list.length; i++) {
       addVaultInfo(gson.toJson(list[i]));
     }
   }
-  
+
   /*
    * Removes vault from cache
    */
@@ -159,7 +161,7 @@ public class LocalCache {
       }
     }
   }
-  
+
   /*
    * Removes archive from vault
    */
@@ -199,7 +201,7 @@ public class LocalCache {
       }
     }
   }
-  
+
   /*
    * Saves objects to cache
    */
@@ -216,29 +218,31 @@ public class LocalCache {
       log.info("UnsupportedEncodingException: "+ex.getMessage());
     }
   }
-  
+
   private void prettyPrintVault(VaultInfo vault) {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     String json = gson.toJson(vault);
     System.out.println(json);
   }
-  
+
   public void prettyPrintVaults() {
-    for(VaultInfo v : getVaults())
+    for(VaultInfo v : getVaults()) {
       prettyPrintVault(v);
+    }
   }
-  
+
   private void prettyPrintInProgressUpload(InProgressUpload upload) {
     Gson gson = new GsonBuilder().setPrettyPrinting().create();
     String json = gson.toJson(upload);
     System.out.println(json);
   }
-  
+
   public void prettyPrintInProgressUploads() {
-    for(InProgressUpload u : getInProgressUploads())
+    for(InProgressUpload u : getInProgressUploads()) {
       prettyPrintInProgressUpload(u);
+    }
   }
-  
+
   public static LocalCache loadCache() {
     if(cacheFile.exists()) {
       LocalCache cache = loadJSONFromFile();
@@ -248,7 +252,7 @@ public class LocalCache {
       return createEmptyCache();
     }
   }
-  
+
   private static LocalCache loadJSONFromFile() {
     try {
       BufferedReader in = new BufferedReader(new FileReader(cacheFile));
@@ -258,9 +262,9 @@ public class LocalCache {
     } catch (IOException ex) {
       log.error("IOException: "+ex.getMessage());
       return null;
-    } 
+    }
   }
-  
+
   private static LocalCache createEmptyCache() {
 
     if(!cacheFile.getParentFile().exists()) {
@@ -270,7 +274,7 @@ public class LocalCache {
         return null;
       }
     }
-    
+
     try {
       PrintWriter out = new PrintWriter(cacheFile, "UTF-8");
       Gson gson = new Gson();
