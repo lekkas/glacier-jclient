@@ -59,6 +59,7 @@ public class MultipartUploadArchive extends GlacierOperation {
   @Override
   public void exec() {
     try {
+      initClient();
       String archiveFilePath = argOpts.getString("upload");
       String vaultName = argOpts.getString("vault");
       String endpoint = getEndpoint(argOpts.getString("endpoint"));
@@ -157,7 +158,12 @@ public class MultipartUploadArchive extends GlacierOperation {
    * @return the checksum of the uploaded part, as returned by AWS
    */
   public String uploadPart(String vaultName, String uploadId, byte[] partBytes, String checksum,
-      String contentRangeRFC2616) {
+      long startContentRange) {
+
+    long endContentRange = startContentRange + partBytes.length - 1L;
+    String contentRangeRFC2616 =
+        String.format("bytes %s-%s/*", Long.toString(startContentRange), Long
+            .toString(endContentRange));
 
     AmazonGlacierClient client = getAWSClient();
     UploadMultipartPartRequest partRequest =
@@ -209,9 +215,6 @@ public class MultipartUploadArchive extends GlacierOperation {
       String checksum = TreeHashGenerator.calculateTreeHash(new ByteArrayInputStream(part));
       byte[] binaryChecksum = BinaryUtils.fromHex(checksum);
       binaryChecksums.add(binaryChecksum);
-      String contentRangeRFC2616 =
-          String.format("bytes %s-%s/*", Long.toString(startContentRange), Long
-              .toString(endContentRange));
 
       /*
        * Retry to upload part when we face recoverable exceptions. TODO: Add
@@ -223,7 +226,7 @@ public class MultipartUploadArchive extends GlacierOperation {
         try {
           log.info("Uploading part " + currentPart + "/" + totalParts + " : (" + startContentRange
               + "-" + endContentRange + ")");
-          uploadPart(vaultName, uploadId, part, checksum, contentRangeRFC2616);
+          uploadPart(vaultName, uploadId, part, checksum, startContentRange);
           partUploaded = true;
         } catch (RequestTimeoutException ex) {
           log.info("RequestTimeoutException: Retrying to upload part " + currentPart + "/"
@@ -239,7 +242,7 @@ public class MultipartUploadArchive extends GlacierOperation {
       }
 
       if (!partUploaded) {
-        log.error("Failed to upload " + contentRangeRFC2616
+        log.error("Failed to upload " + startContentRange + "-" + endContentRange
             + ". Aborting upload, please see log file" + " for more information");
         System.exit(1);
       }
@@ -262,7 +265,7 @@ public class MultipartUploadArchive extends GlacierOperation {
    *          number of bytes to read from file
    * @return byte[] read bytes array
    */
-  private byte[]
+  public byte[]
       readContentRangeFromFile(RandomAccessFile in, long contentRangeStart, long partSize)
           throws IOException {
     byte[] buf = new byte[(int) partSize];

@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.jobs;
 
@@ -28,19 +28,18 @@ import com.google.gson.GsonBuilder;
 public class ListJobs extends GlacierOperation {
 
   public static Logger log = LoggerFactory.getLogger(ListJobs.class);
-  
+
   public ListJobs(Namespace argOpts) {
     super(argOpts);
   }
-  
+
   @Override
   public void exec() {
-    
     try {
       String vaultName = argOpts.getString("vault");
       String listOption = argOpts.getString("list");
       ListJobsResult listJobsResult = listJobs(vaultName, listOption);
-      
+
       log.debug("listJobs() response for '"+vaultName+"' ("+listOption+"): "+
           listJobsResult.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
@@ -57,41 +56,42 @@ public class ListJobs extends GlacierOperation {
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("job") && 
+    return argOpts.getString("command_name").equals("job") &&
         argOpts.getString("list") != null &&
         argOpts.getString("vault") != null;
   }
 
   /**
-   * This operation lists jobs for a vault including jobs that are in-progress and jobs that have 
+   * This operation lists jobs for a vault including jobs that are in-progress and jobs that have
    * recently finished.
    * 
-   * To retrieve an archive or retrieve a vault inventory from Amazon Glacier, you first initiate a 
-   * job, and after the job completes, you download the data. For an archive retrieval, the output 
-   * is the archive data, and for an inventory retrieval, it is the inventory list. The List Job 
+   * To retrieve an archive or retrieve a vault inventory from Amazon Glacier, you first initiate a
+   * job, and after the job completes, you download the data. For an archive retrieval, the output
+   * is the archive data, and for an inventory retrieval, it is the inventory list. The List Job
    * operation returns a list of these jobs sorted by job initiation time.
    * 
-   * The List Jobs operation supports pagination. By default, this operation returns up to 1,000 
-   * jobs in the response.  You should always check the response marker field for a marker at 
+   * The List Jobs operation supports pagination. By default, this operation returns up to 1,000
+   * jobs in the response.  You should always check the response marker field for a marker at
    * which to continue the list (TODO); if there are no more items the marker field is null.
-   * To return a list of jobs that begins at a specific job, set the marker request parameter to 
-   * the value you obtained from a previous List Jobs request. You can also limit the number of 
+   * To return a list of jobs that begins at a specific job, set the marker request parameter to
+   * the value you obtained from a previous List Jobs request. You can also limit the number of
    * jobs returned in the response by specifying the limit parameter in the request.
    * 
-   * Additionally, you can filter the jobs list returned by specifying an optional statuscode 
-   * (InProgress, Succeeded, or Failed) and completed (true, false) parameter. The statuscode 
-   * allows you to specify that only jobs that match a specified status are returned. The completed 
+   * Additionally, you can filter the jobs list returned by specifying an optional statuscode
+   * (InProgress, Succeeded, or Failed) and completed (true, false) parameter. The statuscode
+   * allows you to specify that only jobs that match a specified status are returned. The completed
    * parameter allows you to specify that only jobs in specific completion state are returned.
    * 
    * @param vaultName
    * @param listOption
    */
   public ListJobsResult listJobs(String vaultName, String listOption) {
+    initClient();
     AmazonGlacierClient client = getAWSClient();
     String statuscode = listOption.equals("All")?null:listOption;
     ListJobsRequest listJobsRequest = new ListJobsRequest()
-        .withVaultName(vaultName)
-        .withStatuscode(statuscode);
+    .withVaultName(vaultName)
+    .withStatuscode(statuscode);
     ListJobsResult listJobsResult = client.listJobs(listJobsRequest);
     return listJobsResult;
   }

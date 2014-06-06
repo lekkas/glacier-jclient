@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
 
@@ -20,7 +19,7 @@ import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
  * Abort multipart upload.
  */
 public class AbortMultipartUploadArchive extends GlacierOperation {
-  
+
   private final Logger log = LoggerFactory.getLogger(AbortMultipartUploadArchive.class);
 
   public AbortMultipartUploadArchive(Namespace argOpts) {
@@ -29,14 +28,10 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
 
   @Override
   public void exec() {
-    String uploadId = argOpts.getString("abort");
-    String vaultName = argOpts.getString("vault");
-    String endpoint = getEndpoint(argOpts.getString("endpoint"));
-    AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-    AmazonGlacierClient client = new AmazonGlacierClient(credentials);
-    client.setEndpoint(endpoint);
-
     try {
+      initClient();
+      String uploadId = argOpts.getString("abort");
+      String vaultName = argOpts.getString("vault");
       abortUpload(vaultName, uploadId);
 
       /*

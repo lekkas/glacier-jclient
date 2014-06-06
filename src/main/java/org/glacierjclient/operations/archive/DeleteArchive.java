@@ -21,17 +21,17 @@ import com.amazonaws.services.glacier.model.DeleteArchiveRequest;
 public class DeleteArchive extends GlacierOperation {
 
   private final Logger log = LoggerFactory.getLogger(DeleteArchive.class);
-  
+
   public DeleteArchive(Namespace argOpts) {
     super(argOpts);
   }
 
   @Override
   public void exec() {
-    String archiveId = argOpts.getString("delete");
-    String vaultName = argOpts.getString("vault");
-
     try {
+      initClient();
+      String archiveId = argOpts.getString("delete");
+      String vaultName = argOpts.getString("vault");
       deleteArchive(vaultName, archiveId);
 
       /*
@@ -61,8 +61,8 @@ public class DeleteArchive extends GlacierOperation {
   public void deleteArchive(String vaultName, String archiveId) {
     AmazonGlacierClient client = getAWSClient();
     DeleteArchiveRequest deleteRequest = new DeleteArchiveRequest()
-      .withVaultName(vaultName)
-      .withArchiveId(archiveId);
+    .withVaultName(vaultName)
+    .withArchiveId(archiveId);
     client.deleteArchive(deleteRequest);
   }
 }

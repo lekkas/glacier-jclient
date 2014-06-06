@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.cache;
 
@@ -17,6 +17,7 @@ public class DisplayCache extends GenericOperation {
     super(argOpts);
   }
 
+  @Override
   public void exec() {
     System.out.println("--- Vaults --- ");
     LocalCache.loadCache().prettyPrintVaults();

@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.jobs;
 
@@ -20,48 +20,48 @@ import com.amazonaws.services.glacier.model.GetJobOutputResult;
 public class JobOutput extends GlacierOperation {
 
   public static Logger log = LoggerFactory.getLogger(JobOutput.class);
-  
+
   public JobOutput(Namespace argOpts) {
     super(argOpts);
   }
 
   @Override
   public void exec() {
-    log.info("Execution of initiateJob() from its wrapper class is not supported");
   }
 
   @Override
   public boolean valid() {
     return false;
   }
-  
+
   /**
    * Get result of submitted job
    * 
    * @param vaultName
-   * @param jobId Job ID
-   * @param range Byte range for archive retrieval. MUST be null when requesting inventory
-   * archives.
+   * @param jobId
+   *          Job ID
+   * @param range
+   *          Byte range for archive retrieval. MUST be null when requesting
+   *          inventory archives.
    * @return
    */
   public GetJobOutputResult getJobOutput(String vaultName, String jobId, String range) {
+    initClient();
     AmazonGlacierClient client = getAWSClient();
-    GetJobOutputRequest jobOutputRequest = new GetJobOutputRequest()
-        .withVaultName(vaultName)
-        .withJobId(jobId)
-        .withRange(range);
+    GetJobOutputRequest jobOutputRequest =
+        new GetJobOutputRequest().withVaultName(vaultName).withJobId(jobId).withRange(range);
 
     GetJobOutputResult jobOutputResult = client.getJobOutput(jobOutputRequest);
     return jobOutputResult;
   }
-  
-  public String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult) 
+
+  public String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult)
       throws IOException {
-    
+
     BufferedReader in = new BufferedReader(new InputStreamReader(jobOutputResult.getBody()));
     StringBuilder buf = new StringBuilder();
     String line = null;
-    while((line = in.readLine()) != null) {
+    while ((line = in.readLine()) != null) {
       buf.append(line);
     }
     in.close();

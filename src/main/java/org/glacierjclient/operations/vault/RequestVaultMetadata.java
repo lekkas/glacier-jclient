@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.vault;
 
@@ -21,17 +21,18 @@ import com.google.gson.GsonBuilder;
 public class RequestVaultMetadata extends GlacierOperation {
 
   public static Logger log = LoggerFactory.getLogger(RequestVaultMetadata.class);
-  
+
   public RequestVaultMetadata(Namespace argOpts) {
     super(argOpts);
   }
-  
+
   @Override
   public void exec() {
     try {
+      initClient();
       String vaultName = argOpts.getString("meta");
-      DescribeVaultResult result = requestVaultMetadata(vaultName);   
-      
+      DescribeVaultResult result = requestVaultMetadata(vaultName);
+
       log.debug("Vault metadata for '"+vaultName+"': "+result.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
       String json = gson.toJson(result);
@@ -44,15 +45,15 @@ public class RequestVaultMetadata extends GlacierOperation {
       log.error("AmazonClientException: "+ex.getMessage());
       System.exit(1);
     }
-  } 
-  
+  }
+
   /**
-   * This operation returns information about a vault, including the vault Amazon Resource Name 
-   * (ARN), the date the vault was created, the number of archives contained within the vault, and 
-   * the total size of all the archives in the vault. The number of archives and their total size 
-   * are as of the last vault inventory Amazon Glacier generated (see Working with Vaults in Amazon 
-   * Glacier). Amazon Glacier generates vault inventories approximately daily. This means that if 
-   * you add or remove an archive from a vault, and then immediately send a Describe Vault request, 
+   * This operation returns information about a vault, including the vault Amazon Resource Name
+   * (ARN), the date the vault was created, the number of archives contained within the vault, and
+   * the total size of all the archives in the vault. The number of archives and their total size
+   * are as of the last vault inventory Amazon Glacier generated (see Working with Vaults in Amazon
+   * Glacier). Amazon Glacier generates vault inventories approximately daily. This means that if
+   * you add or remove an archive from a vault, and then immediately send a Describe Vault request,
    * the response might not reflect the changes.
    * 
    * @param vaultName
@@ -66,7 +67,7 @@ public class RequestVaultMetadata extends GlacierOperation {
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("vault") && 
-            argOpts.getString("meta") != null;
+    return argOpts.getString("command_name").equals("vault") &&
+        argOpts.getString("meta") != null;
   }
 }

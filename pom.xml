@@ -3,7 +3,7 @@
   <groupId>org.lekkas.glacierjclient</groupId>
   <artifactId>glacier-jclient</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>Glacial JClient</name>
+  <name>Glacier JClient</name>
   <description>Java command-line interface for AWS Glacier</description>
   <inceptionYear>2014</inceptionYear>
   <dependencies>
@@ -63,7 +63,7 @@
 				</descriptorRefs>
  				<archive>
 					<manifest>
-						<mainClass>org.glacierjclient.GlacialBackup</mainClass>
+						<mainClass>org.glacierjclient.GlacierJClient</mainClass>
 					</manifest>
 				</archive>
 			</configuration>
