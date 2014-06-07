@@ -89,7 +89,7 @@ public class CLIArguments {
   /*
    * List of AWS endpoint regions
    */
-  public static final String[] Endpoints = {
+  public static final String[] Regions = {
     "us-east-1",
     "us-west-1",
     "us-west-2",
@@ -110,6 +110,16 @@ public class CLIArguments {
     ArgumentParser parser = ArgumentParsers.newArgumentParser("GlacierBackup")
         .description("Command line interface for Amazon Glacier");
 
+    parser.addArgument("--region")
+    .help("Set region "+Arrays.asList(Regions).toString())
+    .choices(new CaseInsensitiveStringChoice(Regions))
+    .metavar("<region>")
+    .setDefault("eu-west-1");
+
+    parser.addArgument("--credentials")
+    .help("Location of AWS credentials")
+    .metavar("<file>");
+
     Subparsers commands = parser.addSubparsers()
         .title("commands")
         .metavar("COMMAND")
@@ -117,20 +127,15 @@ public class CLIArguments {
         .dest("command_name");
 
     Subparser vault = commands.addParser("vault").aliases("v").help("Vault operations");
-    ArgumentGroup requiredVaultArgs = vault.addArgumentGroup("required arguments");
     MutuallyExclusiveGroup vaultOperations =
         vault.addMutuallyExclusiveGroup("vault operations").required(true);
-
-    vault.addArgument("--credentials")
-    .help("Location of AWS credentials")
-    .metavar("<file>");
-
+    /*
     requiredVaultArgs.addArgument("-e","--endpoint")
     .help("Set endpoint "+Arrays.asList(Endpoints).toString())
     .choices(new CaseInsensitiveStringChoice(Endpoints))
     .metavar("<region>")
     .required(true);
-
+     */
     vaultOperations.addArgument("-l", "--list")
     .help("List vaults")
     .action(Arguments.storeTrue());
@@ -155,20 +160,23 @@ public class CLIArguments {
     ArgumentGroup requiredArchiveArgs = archive.addArgumentGroup("required arguments");
     MutuallyExclusiveGroup archiveOperations =
         archive.addMutuallyExclusiveGroup("archive operations");
-
+    /*
     archive.addArgument("--credentials")
     .help("Location of AWS credentials")
     .metavar("<file>");
+     */
 
     archive.addArgument("--description")
     .help("Description of archive (default: File name)")
     .metavar("<description>");
 
+    /*
     requiredArchiveArgs.addArgument("-e","--endpoint")
     .help("Set endpoint "+Arrays.asList(Endpoints).toString())
     .choices(new CaseInsensitiveStringChoice(Endpoints))
     .metavar("<region>")
     .required(true);
+     */
 
     requiredArchiveArgs.addArgument("-v","--vault")
     .help("Vault name for job operations")
@@ -191,6 +199,7 @@ public class CLIArguments {
     ArgumentGroup requiredJobArgs = jobs.addArgumentGroup("required arguments");
     ArgumentGroup jobOperations = jobs.addArgumentGroup("job operations");
 
+    /*
     jobs.addArgument("--credentials")
     .help("Location of AWS credentials")
     .metavar("<file>");
@@ -200,6 +209,7 @@ public class CLIArguments {
     .choices(new CaseInsensitiveStringChoice(Endpoints))
     .metavar("<region>")
     .required(true);
+     */
 
     requiredJobArgs.addArgument("-v","--vault")
     .help("Vault name for job operations")

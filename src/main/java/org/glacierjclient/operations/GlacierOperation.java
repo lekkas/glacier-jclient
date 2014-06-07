@@ -80,7 +80,7 @@ public abstract class GlacierOperation extends GenericOperation {
   public AmazonGlacierClient getAWSClient() {
     if(client == null) {
       AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      String endpoint = getEndpoint(argOpts.getString("region"));
       client = new AmazonGlacierClient(credentials);
       client.setEndpoint(endpoint);
       return client;
