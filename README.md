@@ -7,9 +7,9 @@ of vault metadata and their inventories.
 
 Commands
 --------
-* glacier-jclient vault --list
-* glacier-jclient archive --vault <em>vaultName</em> --upload <em>fileName</em>
-* glacier-jclient cache
+* <code>glacier-jclient vault --list</code>
+* <code>glacier-jclient archive --vault <em>vaultName</em> --upload <em>fileName</em></code>
+* <code>glacier-jclient cache</code>
 
 TODO
 ----
