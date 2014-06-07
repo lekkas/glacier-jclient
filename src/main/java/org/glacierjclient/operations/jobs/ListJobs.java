@@ -18,12 +18,10 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * 
  * List vault jobs.
  * 
  * This operation lists in-progress and recently failed/succeeded inventory/archive
  * retrieval vault jobs.
- *
  */
 public class ListJobs extends GlacierOperation {
 
@@ -86,7 +84,6 @@ public class ListJobs extends GlacierOperation {
    * @param listOption
    */
   public ListJobsResult listJobs(String vaultName, String listOption) {
-    initClient();
     AmazonGlacierClient client = getAWSClient();
     String statuscode = listOption.equals("All")?null:listOption;
     ListJobsRequest listJobsRequest = new ListJobsRequest()

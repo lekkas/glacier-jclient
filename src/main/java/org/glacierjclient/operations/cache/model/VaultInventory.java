@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com) 
+ * @author Kostas Lekkas (kwstasl@gmail.com)
  */
 package org.glacierjclient.operations.cache.model;
 
@@ -9,9 +9,9 @@ public class VaultInventory {
   private String VaultARN;
   private String InventoryDate;
   private List<ArchiveInfo> ArchiveList;
-  
+
   public VaultInventory() {
-    
+
   }
 
   /**
@@ -22,7 +22,8 @@ public class VaultInventory {
   }
 
   /**
-   * @param vaultARN the vaultARN to set
+   * @param vaultARN
+   *          the vaultARN to set
    */
   public void setVaultARN(String vaultARN) {
     VaultARN = vaultARN;
@@ -36,7 +37,8 @@ public class VaultInventory {
   }
 
   /**
-   * @param inventoryDate the inventoryDate to set
+   * @param inventoryDate
+   *          the inventoryDate to set
    */
   public void setInventoryDate(String inventoryDate) {
     InventoryDate = inventoryDate;
@@ -50,11 +52,10 @@ public class VaultInventory {
   }
 
   /**
-   * @param archiveList the archiveList to set
+   * @param archiveList
+   *          the archiveList to set
    */
   public void setArchiveList(List<ArchiveInfo> archiveList) {
     ArchiveList = archiveList;
   }
-
-  
 }

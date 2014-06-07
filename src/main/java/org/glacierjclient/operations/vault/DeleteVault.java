@@ -17,7 +17,6 @@ import com.amazonaws.services.glacier.model.DeleteVaultRequest;
 
 /**
  * Delete vault operation.
- *
  */
 public class DeleteVault extends GlacierOperation {
 
@@ -30,38 +29,34 @@ public class DeleteVault extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       String vaultName = argOpts.getString("delete");
       deleteVault(vaultName);
-
-      log.info("Deleted vault '" + vaultName+"'");
+      log.info("Deleted vault '" + vaultName + "'");
 
       /*
        * Remove vault from cache
        */
       LocalCache.loadCache().deleteVaultInfo(vaultName);
-
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
+    } catch (AmazonServiceException ex) {
+      log.error("AmazonServiceException: " + ex.getMessage());
       System.exit(1);
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
+    } catch (AmazonClientException ex) {
+      log.error("AmazonClientException: " + ex.getMessage());
       System.exit(1);
     }
-
   }
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("vault") &&
-        argOpts.getString("delete") != null;
+    return argOpts.getString("command_name").equals("vault") && argOpts.getString("delete") != null;
   }
 
   /**
-   * This operation deletes a vault. Amazon Glacier will delete a vault only if there are no
-   * archives in the vault as per the last inventory and there have been no writes to the vault
-   * since the last inventory. If either of these conditions is not satisfied, the vault deletion
-   * fails (that is, the vault is not removed) and Amazon Glacier returns an error.
+   * This operation deletes a vault. Amazon Glacier will delete a vault only if
+   * there are no archives in the vault as per the last inventory and there have
+   * been no writes to the vault since the last inventory. If either of these
+   * conditions is not satisfied, the vault deletion fails (that is, the vault
+   * is not removed) and Amazon Glacier returns an error.
    * 
    * @param vaultName
    */

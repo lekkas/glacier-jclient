@@ -19,8 +19,6 @@ public class GlacierJClient {
   public static Logger log = LoggerFactory.getLogger(GlacierJClient.class);
 
   public static void main(String[] args) throws IOException, InterruptedException {
-
-
     ArgumentParser parser = CLIArguments.createArgsParser();
     Namespace ns;
     try {

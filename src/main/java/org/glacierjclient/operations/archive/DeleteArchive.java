@@ -16,7 +16,7 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.DeleteArchiveRequest;
 
 /**
- * Delete archive.
+ * Delete archive operation.
  */
 public class DeleteArchive extends GlacierOperation {
 
@@ -29,13 +29,12 @@ public class DeleteArchive extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       String archiveId = argOpts.getString("delete");
       String vaultName = argOpts.getString("vault");
       deleteArchive(vaultName, archiveId);
 
       /*
-       * Remove entry from the cache
+       * Remove entry from the cache.
        */
       LocalCache.loadCache().deleteArchiveInfo(vaultName, archiveId);
       log.info("Deleted archive with id " + archiveId);
@@ -48,8 +47,8 @@ public class DeleteArchive extends GlacierOperation {
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("archive") &&
-        argOpts.getString("delete") != null;
+    return argOpts.getString("command_name").equals("archive")
+        && argOpts.getString("delete") != null;
   }
 
   /**
@@ -60,9 +59,8 @@ public class DeleteArchive extends GlacierOperation {
    */
   public void deleteArchive(String vaultName, String archiveId) {
     AmazonGlacierClient client = getAWSClient();
-    DeleteArchiveRequest deleteRequest = new DeleteArchiveRequest()
-    .withVaultName(vaultName)
-    .withArchiveId(archiveId);
+    DeleteArchiveRequest deleteRequest =
+        new DeleteArchiveRequest().withVaultName(vaultName).withArchiveId(archiveId);
     client.deleteArchive(deleteRequest);
   }
 }

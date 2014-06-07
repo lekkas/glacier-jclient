@@ -33,17 +33,9 @@ public abstract class GlacierOperation extends GenericOperation {
 
   public GlacierOperation(Namespace argOpts) {
     super(argOpts);
+    this.client = null;
   }
 
-  /**
-   * Initialize AmazonGlacierClient
-   */
-  public void initClient() {
-    AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
-    String endpoint = getEndpoint(argOpts.getString("endpoint"));
-    this.client = new AmazonGlacierClient(credentials);
-    this.client.setEndpoint(endpoint);
-  }
   /**
    * Load AWS credentials from file.
    * 
@@ -82,7 +74,18 @@ public abstract class GlacierOperation extends GenericOperation {
     return "https://glacier."+region.toLowerCase()+".amazonaws.com";
   }
 
+  /**
+   * Initialize AmazonGlacierClient
+   */
   public AmazonGlacierClient getAWSClient() {
-    return client;
+    if(client == null) {
+      AWSCredentials credentials = loadCredentials(argOpts.getString("credentials"));
+      String endpoint = getEndpoint(argOpts.getString("endpoint"));
+      client = new AmazonGlacierClient(credentials);
+      client.setEndpoint(endpoint);
+      return client;
+    } else {
+      return client;
+    }
   }
 }

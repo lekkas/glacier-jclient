@@ -50,7 +50,7 @@ public class MultipartUploadArchive extends GlacierOperation {
 
   private final Logger log = LoggerFactory.getLogger(MultipartUploadArchive.class);
 
-  public static long defaultPartSize = 1024L * 1024L; // 1 MB.
+  public static long defaultPartSize = 1024L * 1024L * 16L; // 16 MB.
 
   public MultipartUploadArchive(Namespace argOpts) {
     super(argOpts);
@@ -59,7 +59,6 @@ public class MultipartUploadArchive extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       String archiveFilePath = argOpts.getString("upload");
       String vaultName = argOpts.getString("vault");
       String endpoint = getEndpoint(argOpts.getString("endpoint"));

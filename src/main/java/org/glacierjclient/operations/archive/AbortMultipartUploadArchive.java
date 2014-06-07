@@ -16,7 +16,7 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.AbortMultipartUploadRequest;
 
 /**
- * Abort multipart upload.
+ * Abort multipart upload operation.
  */
 public class AbortMultipartUploadArchive extends GlacierOperation {
 
@@ -29,17 +29,15 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       String uploadId = argOpts.getString("abort");
       String vaultName = argOpts.getString("vault");
       abortUpload(vaultName, uploadId);
+      log.info("Aborted multipart upload with id " + uploadId);
 
       /*
        * Remove entry from the cache
        */
       LocalCache.loadCache().deleteInProgressUpload(vaultName, uploadId);
-
-      log.info("Aborted multipart upload with id " + uploadId);
     } catch (AmazonServiceException ex) {
       log.error("AmazonServiceException: " + ex.getMessage());
     } catch (AmazonClientException ex) {
@@ -63,7 +61,6 @@ public class AbortMultipartUploadArchive extends GlacierOperation {
     AmazonGlacierClient client = getAWSClient();
     AbortMultipartUploadRequest abortMultipartUploadRequest =
         new AbortMultipartUploadRequest().withVaultName(vaultName).withUploadId(uploadId);
-
     client.abortMultipartUpload(abortMultipartUploadRequest);
   }
 }

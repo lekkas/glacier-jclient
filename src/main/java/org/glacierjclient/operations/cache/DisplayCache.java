@@ -8,8 +8,8 @@ import net.sourceforge.argparse4j.inf.Namespace;
 import org.glacierjclient.operations.GenericOperation;
 import org.glacierjclient.operations.cache.model.LocalCache;
 
-/*
- * Display cache information
+/**
+ * Display cache operation.
  */
 public class DisplayCache extends GenericOperation {
 
@@ -19,10 +19,11 @@ public class DisplayCache extends GenericOperation {
 
   @Override
   public void exec() {
+    LocalCache cache = LocalCache.loadCache();
     System.out.println("--- Vaults --- ");
-    LocalCache.loadCache().prettyPrintVaults();
+    cache.prettyPrintVaults();
     System.out.println("--- In progress uploads --- ");
-    LocalCache.loadCache().prettyPrintInProgressUploads();
+    cache.prettyPrintInProgressUploads();
   }
 
   @Override

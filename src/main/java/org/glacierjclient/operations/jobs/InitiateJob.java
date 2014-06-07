@@ -15,9 +15,7 @@ import com.amazonaws.services.glacier.model.InitiateJobResult;
 import com.amazonaws.services.glacier.model.JobParameters;
 
 /**
- * The 'createJob' operation is not invoked directly from the command line; it is only wrapped
- * in a 'GlacierOperation' object to be consistent with the rest of the operations.
- * 
+ * Initiate job operation.
  */
 public class InitiateJob extends GlacierOperation {
 
@@ -26,11 +24,15 @@ public class InitiateJob extends GlacierOperation {
   public static enum InitJobType {
     INVENTORY_RETRIEVAL {
       @Override
-      public String toString() { return "inventory-retrieval"; }
+      public String toString() {
+        return "inventory-retrieval";
+      }
     },
     ARCHIVE_RETRIEVAL {
       @Override
-      public String toString() { return "archive-retrieval"; }
+      public String toString() {
+        return "archive-retrieval";
+      }
     }
   }
 
@@ -40,7 +42,7 @@ public class InitiateJob extends GlacierOperation {
 
   @Override
   public void exec() {
-    log.info("Execution of initiateJob() from its wrapper class is not supported");
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -48,16 +50,20 @@ public class InitiateJob extends GlacierOperation {
     return false;
   }
 
+  /**
+   * Create vault job.
+   * 
+   * @param vaultName
+   * @param jobType
+   *          {@link InitJobType} value
+   * 
+   * @return {@link InitiateJobResult} object.
+   */
   public InitiateJobResult initiateJob(String vaultName, InitJobType jobType) {
-    initClient();
     AmazonGlacierClient client = getAWSClient();
     InitiateJobRequest inventoryJobRequest =
-        new InitiateJobRequest()
-    .withVaultName(vaultName)
-    .withJobParameters(
-        new JobParameters()
-        .withType(jobType.toString())
-        );
+        new InitiateJobRequest().withVaultName(vaultName).withJobParameters(
+            new JobParameters().withType(jobType.toString()));
     InitiateJobResult initJobResult = client.initiateJob(inventoryJobRequest);
     return initJobResult;
   }

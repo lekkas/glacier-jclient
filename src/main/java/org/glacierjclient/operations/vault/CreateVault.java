@@ -16,11 +16,9 @@ import com.amazonaws.services.glacier.AmazonGlacierClient;
 import com.amazonaws.services.glacier.model.CreateVaultRequest;
 import com.amazonaws.services.glacier.model.CreateVaultResult;
 import com.amazonaws.services.glacier.model.DescribeVaultResult;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 /**
- * Create vault operation.
+ * Create vault opration.
  */
 public class CreateVault extends GlacierOperation {
 
@@ -33,11 +31,10 @@ public class CreateVault extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       String vaultName = argOpts.getString("create");
       CreateVaultResult result = createVault(vaultName);
 
-      log.debug("Create vault operation response: "+result.toString());
+      log.debug("Create vault operation response: " + result.toString());
       log.info("Vault created successfully: " + result.getLocation());
 
       /*
@@ -45,33 +42,29 @@ public class CreateVault extends GlacierOperation {
        */
       RequestVaultMetadata metaOperation = new RequestVaultMetadata(argOpts);
       DescribeVaultResult metaResult = metaOperation.requestVaultMetadata(vaultName);
-
-      log.debug("Vault metadata for '"+argOpts.getString("create")+"': "+result.toString());
-      Gson gson = new GsonBuilder().setPrettyPrinting().create();
-      String json = gson.toJson(metaResult);
-      LocalCache.loadCache().addVaultInfo(json);
-
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
+      log.debug("Vault metadata for '" + vaultName + "': " + result.toString());
+      LocalCache.loadCache().addVaultInfo(metaResult);
+    } catch (AmazonServiceException ex) {
+      log.error("AmazonServiceException: " + ex.getMessage());
       System.exit(1);
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
+    } catch (AmazonClientException ex) {
+      log.error("AmazonClientException: " + ex.getMessage());
       System.exit(1);
     }
   }
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("vault") &&
-        argOpts.getString("create") != null;
+    return argOpts.getString("command_name").equals("vault") && argOpts.getString("create") != null;
   }
 
   /**
-   * Creates vault with vaultName. This operation is idempotent, you can send the same request
-   * multiple times and it has no further effect after the first time Amazon Glacier creates
-   * the specified vault.
+   * Creates vault with vaultName. This operation is idempotent, you can send
+   * the same request multiple times and it has no further effect after the
+   * first time Amazon Glacier creates the specified vault.
    * 
    * @param vaultName
+   * @return {@link CreateVaultResult} object
    */
   public CreateVaultResult createVault(String vaultName) {
     AmazonGlacierClient client = getAWSClient();

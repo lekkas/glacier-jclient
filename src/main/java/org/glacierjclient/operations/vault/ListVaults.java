@@ -1,5 +1,5 @@
 /**
- * @author Kostas Lekkas (kwstasl@gmail.com)
+ * @author Kostas Lekkas (kwstasl@gmail.com)initClient();
  */
 package org.glacierjclient.operations.vault;
 
@@ -18,7 +18,9 @@ import com.amazonaws.services.glacier.model.ListVaultsResult;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-
+/**
+ * List vaults operation.
+ */
 public class ListVaults extends GlacierOperation {
 
   private final Logger log = LoggerFactory.getLogger(ListVaults.class);
@@ -30,33 +32,33 @@ public class ListVaults extends GlacierOperation {
   @Override
   public void exec() {
     try {
-      initClient();
       ListVaultsResult listVaultsResult = requestVaultList();
-
-      log.debug("requestVaultList() response: "+listVaultsResult.toString());
+      log.debug("requestVaultList() response: " + listVaultsResult.toString());
       Gson gson = new GsonBuilder().setPrettyPrinting().create();
-      String json = gson.toJson(listVaultsResult.getVaultList());
-      LocalCache.loadCache().addVaultInfoList(json);
+      String prettyJson = gson.toJson(listVaultsResult.getVaultList());
+      System.out.println(prettyJson);
 
-      System.out.println(json);
-    } catch(AmazonServiceException ex) {
-      log.error("AmazonServiceException: "+ex.getMessage());
+      /*
+       * Save all vaults to cache
+       */
+      LocalCache.loadCache().addVaultInfoList(listVaultsResult);
+    } catch (AmazonServiceException ex) {
+      log.error("AmazonServiceException: " + ex.getMessage());
       System.exit(1);
-    } catch(AmazonClientException ex) {
-      log.error("AmazonClientException: "+ex.getMessage());
+    } catch (AmazonClientException ex) {
+      log.error("AmazonClientException: " + ex.getMessage());
       System.exit(1);
     }
   }
 
   @Override
   public boolean valid() {
-    return argOpts.getString("command_name").equals("vault") &&
-        argOpts.getBoolean("list") == true;
+    return argOpts.getString("command_name").equals("vault") && argOpts.getBoolean("list") == true;
   }
 
   /**
-   * This operation requests the list of all vaults owned by the calling user’s account
-   * TODO: Add marker support for lists of over 1000 items.
+   * This operation requests the list of all vaults owned by the calling user’s
+   * account TODO: Add marker support for lists of over 1000 items.
    */
   public ListVaultsResult requestVaultList() {
     AmazonGlacierClient client = getAWSClient();

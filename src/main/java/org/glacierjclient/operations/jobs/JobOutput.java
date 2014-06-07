@@ -27,6 +27,7 @@ public class JobOutput extends GlacierOperation {
 
   @Override
   public void exec() {
+    throw new UnsupportedOperationException();
   }
 
   @Override
@@ -41,12 +42,13 @@ public class JobOutput extends GlacierOperation {
    * @param jobId
    *          Job ID
    * @param range
-   *          Byte range for archive retrieval. MUST be null when requesting
-   *          inventory archives.
-   * @return
+   *          Byte range for archive retrieval. Must be null when requesting
+   *          vault inventories.
+   * @return {@link GetJobOutputResult} object. The result body will contain
+   *         either the inventory of a vault or archive part bytes, depending on
+   *         the job.
    */
   public GetJobOutputResult getJobOutput(String vaultName, String jobId, String range) {
-    initClient();
     AmazonGlacierClient client = getAWSClient();
     GetJobOutputRequest jobOutputRequest =
         new GetJobOutputRequest().withVaultName(vaultName).withJobId(jobId).withRange(range);
@@ -55,6 +57,13 @@ public class JobOutput extends GlacierOperation {
     return jobOutputResult;
   }
 
+  /**
+   * 
+   * @param jobOutputResult
+   *          {@link GetJobOutputResult} object.
+   * @return JSON string representing the returned vault inventory
+   * @throws IOException
+   */
   public String getJSONInventoryFromJobResult(GetJobOutputResult jobOutputResult)
       throws IOException {
 
